@@ -1,4 +1,13 @@
 <template>
+  <HeaderAnth
+    :searchQuery="searchQuery"
+    :isAuthenticated="isAuthenticated"
+    @buscar="buscarProductos"
+    @cerrar-sesion="cerrarSesion"
+  />
+  <br />
+  <br />
+  <br />
   <div class="producto-contenedor">
     <!-- Mensaje de carga -->
     <div v-if="isLoading" class="mensaje-carga">
@@ -11,93 +20,123 @@
       <button @click="recargarProducto" class="boton-recargar">Reintentar</button>
     </div>
 
+    <!-- Mensaje de no autenticado -->
+    <div v-if="!isAuthenticated" class="mensaje-error">
+      <p>Por favor, inicie sesión para ver los detalles del producto.</p>
+      <button @click="redirigirLogin" class="boton-recargar">Iniciar sesión</button>
+    </div>
+
     <!-- Detalles del producto -->
-    <div v-if="producto && !isLoading && !errorMessage" class="producto-detalle">
-      <!-- Imágenes del producto -->
-      <div class="galeria-imagenes">
-        <div class="miniaturas">
-          <img
-            v-for="(media, index) in producto.media || []"
-            :key="index"
-            :src="getFullImageUrl(media.url)"
-            :alt="`Imagen adicional ${index + 1}`"
-            class="imagen-miniatura"
-            @click="cambiarImagenPrincipal(index)"
-          />
+    <div
+      v-if="producto && !isLoading && !errorMessage && isAuthenticated"
+      class="producto-detalle"
+    >
+      <div class="detalle-contenedor">
+        <!-- Imágenes del producto -->
+        <div class="galeria-imagenes">
+          <div class="miniaturas">
+            <img
+              v-for="(media, index) in producto.media || []"
+              :key="index"
+              :src="getFullImageUrl(media.url)"
+              :alt="`Imagen adicional ${index + 1}`"
+              class="imagen-miniatura"
+              @click="cambiarImagenPrincipal(index)"
+            />
+          </div>
+          <div class="imagen-principal">
+            <img
+              :src="getFullImageUrl(producto.media?.[imagenSeleccionada]?.url || '')"
+              :alt="`Imagen principal de ${producto.nombre_producto || ''}`"
+              class="imagen-grande"
+            />
+          </div>
         </div>
-        <div class="imagen-principal">
-          <img
-            :src="getFullImageUrl(producto.media?.[imagenSeleccionada]?.url || '')"
-            :alt="`Imagen principal de ${producto.nombre_producto || ''}`"
-            class="imagen-grande"
-          />
+
+        <!-- Información del producto -->
+        <div class="informacion-producto">
+          <h1 class="nombre-producto">{{ producto.nombre_producto }}</h1>
+
+          <!-- Precio con descuento y original -->
+          <div class="precio-contenedor">
+            <span class="precio-descuento">USD ${{ formatPrice(producto.precio) }}</span>
+            <span class="precio-original" v-if="producto.precio_original">
+              USD ${{ formatPrice(producto.precio_original) }}
+            </span>
+          </div>
+
+          <!-- Estado del stock -->
+          <p class="stock-producto">
+            {{ producto.stock > 0 ? "En stock" : "Agotado" }}
+          </p>
+
+          <!-- Descripción en formato de lista -->
+          <div class="descripcion-producto">
+            <p><strong>Descripción:</strong></p>
+            <ul>
+              <li><strong>Categoría:</strong> {{ producto.categoria?.nombre_categoria || 'Sin categoría' }}</li>
+              <li><strong>Marca:</strong> {{ producto.marca?.nombre_marca || 'Sin marca' }}</li>
+              <li v-if="producto.peso"><strong>Peso:</strong> {{ producto.peso }} kg</li>
+              <li v-if="producto.color"><strong>Color:</strong> {{ producto.color }}</li>
+              <li v-if="producto.volumen"><strong>Volumen:</strong> {{ producto.volumen }} ml</li>
+              <li v-if="producto.descripcion"><strong>Detalles:</strong> {{ producto.descripcion }}</li>
+            </ul>
+          </div>
+
+          <!-- Botones de acción -->
+          <div class="botones-accion">
+            <button class="boton-compra">Comprar ahora</button>
+            <button class="boton-carrito">Añadir al carrito</button>
+          </div>
         </div>
-      </div>
-
-      <!-- Información del producto -->
-      <div class="informacion-producto">
-        <h1 class="nombre-producto">{{ producto.nombre_producto }}</h1>
-        <p class="precio-producto">USD ${{ formatPrice(producto.precio) }}</p>
-        <p class="stock-producto">
-          {{ producto.stock > 0 ? "En stock" : "Agotado" }}
-        </p>
-        <p><strong>Categoría:</strong> {{ producto.categoria?.nombre_categoria || 'Sin categoría' }}</p>
-        <p><strong>Marca:</strong> {{ producto.marca?.nombre_marca || 'Sin marca' }}</p>
-        <p v-if="producto.peso"><strong>Peso:</strong> {{ producto.peso }} kg</p>
-        <p v-if="producto.color"><strong>Color:</strong> {{ producto.color }}</p>
-
-        <button class="boton-compra">Comprar ahora</button>
-        <button class="boton-carrito">Añadir al carrito</button>
       </div>
     </div>
-
-    <!-- Reseñas del producto -->
-    <div v-if="producto && producto.reseñas" class="producto-reseñas">
-      <h3>Reseñas</h3>
-      <div v-if="producto.reseñas.length">
-        <div v-for="(reseña, index) in producto.reseñas" :key="index" class="reseña">
-          <p><strong>Usuario:</strong> {{ reseña.cliente?.nombre_usuario || 'Anónimo' }}</p>
-          <p><strong>Calificación:</strong> {{ reseña.calificacion }} / 5</p>
-          <p><strong>Comentario:</strong> {{ reseña.texto_resena }}</p>
-          <p><small>{{ formatDate(reseña.fecha_resena) }}</small></p>
-        </div>
-      </div>
-      <div v-else>
-        <p>No hay reseñas para este producto.</p>
-      </div>
-    </div>
+   
   </div>
+  <br>
+  <br>
+  <br>
+  <br>
+  <FooterAnth /> 
 </template>
 
 <script>
 import axios from "axios";
+import HeaderAnth from "@/components/HeaderAnth.vue";
+import FooterAnth from "@/components/FooterAnth.vue";
 
 export default {
+  name: "ProductoDetalle",
+  components: {
+    HeaderAnth,
+    FooterAnth,
+  },
   data() {
-  return {
-    producto: {
-      media: [],
-      reseñas: [],
-    },
-    errorMessage: "",
-    isLoading: true,
-    nuevaReseña: {
-      calificacion: null,
-      comentario: "",
-    },
-    imagenSeleccionada: 0,
-  };
-}
-,
+    return {
+      producto: {
+        media: [],
+      },
+      errorMessage: "",
+      isLoading: true,
+      isAuthenticated: false,
+      imagenSeleccionada: 0,
+      searchQuery: "",
+    };
+  },
   methods: {
     async cargarProducto() {
+      if (!this.isAuthenticated) {
+        return;
+      }
+
       this.isLoading = true;
       this.errorMessage = "";
 
       const productoId = this.$route.params.id;
       try {
         const response = await axios.get(
-          `http://localhost:5000/tienda/productos/${productoId}`
+          `http://localhost:5000/tienda/productos/${productoId}`,
+          { headers: { Authorization: `Bearer ${localStorage.getItem("access_token")}` } }
         );
         this.producto = response.data;
       } catch (error) {
@@ -108,26 +147,11 @@ export default {
         this.isLoading = false;
       }
     },
-    async enviarReseña() {
-      const productoId = this.$route.params.id;
-      const usuarioId = localStorage.getItem("user_id");
-      try {
-        const response = await axios.post(
-          `http://localhost:5000/tienda/reseñas`,
-          {
-            id_producto: productoId,
-            id_cliente: usuarioId,
-            calificacion: this.nuevaReseña.calificacion,
-            texto_resena: this.nuevaReseña.comentario,
-          }
-        );
-
-        this.producto.reseñas.push(response.data);
-        this.nuevaReseña = { calificacion: null, comentario: "" };
-      } catch (error) {
-        this.errorMessage =
-          error.response?.data?.message ||
-          "Hubo un problema al enviar la reseña.";
+    buscarProductos(query) {
+      this.searchQuery = query; // Actualiza el valor local del query
+      if (query.trim() !== "") {
+        // Redirige al HomePage con el término de búsqueda como parámetro de consulta
+        this.$router.push({ name: "HomePage", query: { search: query } });
       }
     },
     cambiarImagenPrincipal(index) {
@@ -136,98 +160,198 @@ export default {
     formatPrice(price) {
       return parseFloat(price).toFixed(2);
     },
-    formatDate(date) {
-      return new Date(date).toLocaleDateString("es-ES", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      });
-    },
     getFullImageUrl(relativeUrl) {
       return `http://localhost:5000${relativeUrl}`;
     },
+    redirigirLogin() {
+      this.$router.push("/login");
+    },
   },
-  created() {
-    this.cargarProducto();
+  async created() {
+    this.isAuthenticated = !!localStorage.getItem("access_token");
+
+    if (this.isAuthenticated) {
+      await this.cargarProducto();
+    }
   },
 };
 </script>
+
 <style scoped>
+/* Contenedor principal */
 .producto-contenedor {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 30px;
   max-width: 1200px;
   margin: auto;
+  padding: 20px;
+  background-color: #f9fafb;
+  border-radius: 15px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
-.galeria-imagenes {
+/* Sección de detalles */
+.detalle-contenedor {
   display: flex;
+  gap: 30px;
+  flex-wrap: wrap;
+  background-color: #ffffff;
+  border-radius: 15px;
+  padding: 30px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.detalle-contenedor:hover {
+  transform: scale(1.02); /* Ampliación suave */
+}
+
+/* Galería de imágenes */
+.galeria-imagenes {
+  flex: 1.5;
+  display: flex;
+  flex-direction: column;
   gap: 20px;
 }
 
 .miniaturas {
   display: flex;
-  flex-direction: column;
   gap: 10px;
+  overflow-x: auto;
 }
 
 .imagen-miniatura {
-  width: 70px;
-  height: 70px;
+  width: 90px;
+  height: 90px;
   object-fit: cover;
   border: 2px solid transparent;
+  border-radius: 8px;
   cursor: pointer;
-  transition: border-color 0.3s ease;
+  transition: transform 0.3s ease, border-color 0.3s ease;
 }
 
 .imagen-miniatura:hover {
-  border-color: #ff9900;
+  transform: scale(1.2); /* Incrementar tamaño */
+  border-color: #007bff;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.imagen-principal {
+  position: relative;
+  overflow: hidden;
+  border-radius: 15px;
 }
 
 .imagen-principal .imagen-grande {
-  width: 500px;
-  border-radius: 5px;
+  max-width: 100%;
+  max-height: 500px;
+  object-fit: contain;
+  border-radius: 15px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
+.imagen-principal .imagen-grande:hover {
+  transform: scale(1.05); /* Incrementar tamaño */
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+}
+
+
+/* Información del producto */
 .informacion-producto {
   flex: 1;
+  padding: 25px;
+  background-color: #fefefe;
+  border: 1px solid #e0e0e0;
+  border-radius: 15px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.05);
 }
 
 .nombre-producto {
-  font-size: 24px;
+  font-size: 30px;
   font-weight: bold;
+  color: #333;
+  margin-bottom: 15px;
 }
 
-.precio-producto {
-  color: #b12704;
-  font-size: 22px;
+.precio-contenedor {
+  margin: 20px 0;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.precio-descuento {
+  font-size: 26px;
+  font-weight: bold;
+  color: #28a745;
+}
+
+.precio-original {
+  font-size: 20px;
+  color: #dc3545;
+  text-decoration: line-through;
+}
+
+.stock-producto {
+  font-size: 18px;
+  color: #555;
+  margin-bottom: 20px;
+}
+
+/* Descripción */
+.descripcion-producto ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.descripcion-producto li {
+  margin-bottom: 10px;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.descripcion-producto strong {
+  color: #333;
+}
+
+/* Botones de acción */
+.botones-accion {
+  display: flex;
+  gap: 15px;
+  margin-top: 25px;
 }
 
 .boton-compra,
 .boton-carrito {
-  width: 100%;
   padding: 12px 20px;
+  font-size: 18px;
+  font-weight: bold;
+  color: #fff;
   border: none;
-  font-size: 16px;
-  margin: 10px 0;
+  border-radius: 8px;
   cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 .boton-compra {
-  background-color: #ffa41c;
-  color: white;
+  background-color: #007bff;
 }
 
 .boton-compra:hover {
-  background-color: #ff8c00;
+  background-color: #0056b3;
+  transform: translateY(-2px);
 }
 
 .boton-carrito {
-  background-color: #e7e9ec;
+  background-color: #28a745;
 }
 
 .boton-carrito:hover {
-  background-color: #d6d7da;
+  background-color: #1e7e34;
+  transform: translateY(-2px);
 }
+
 </style>
+
+

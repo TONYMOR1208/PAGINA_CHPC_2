@@ -1,48 +1,12 @@
 <template>
   <div>
-    <header class="header">
-      <div class="main-header">
-  <div class="logo">
-    <img src="@/images/logo/logo.png" alt="Logo de la página" />
-  </div>
+    <HeaderAnth
+  :searchQuery="searchQuery"
+  :isAuthenticated="isAuthenticated"
+  @buscar="buscarProductos"
+  @cerrar-sesion="cerrarSesion"
+/>
 
-
-        <div class="search-bar">
-          <input
-            type="text"
-            v-model="searchQuery"
-            placeholder="Tenemos lo que usted está buscando"
-          />
-          <button @click="buscarProductos">Buscar</button>
-        </div>
-        <div class="user-actions">
-          <template v-if="!isAuthenticated">
-            <a href="/login">Ingresar</a>
-            <a href="/registro">Hacerse cliente</a>
-          </template>
-          <template v-else>
-            <button @click="cerrarSesion">Cerrar Sesión</button>
-          </template>
-        </div>
-      </div>
-      <nav class="main-menu">
-        <ul>
-          <li><a href="#">Computo</a></li>
-          <li><a href="#">Software</a></li>
-          <li><a href="#">Redes</a></li>
-          <li><a href="#">Electrónica</a></li>
-          <li><a href="#">Movilidad</a></li>
-          <li><a href="#">Oficina</a></li>
-          <li><a href="#">Accesorios</a></li>
-          <li><a href="#">Seguridad</a></li>
-          <li><a href="#">Gaming</a></li>
-          <li><a href="#">Cloud</a></li>
-          <li><a href="#">POS</a></li>
-          <li><a href="#">Marcas</a></li>
-          <li><a href="#">Ofertas & Más</a></li>
-        </ul>
-      </nav>
-    </header>
 
     <!-- Carrusel de Banners -->
     <div v-if="banners.length > 0" class="carousel">
@@ -64,6 +28,8 @@
           :class="{ active: index === activeBanner }"
           @click="activeBanner = index"
         ></span>
+
+       
       </div>
     </div>
 
@@ -93,6 +59,7 @@
             Inicia Sesión para Ver Precios
           </button>
         </div>
+        
       </div>
 
       <!-- Botón para cargar más productos -->
@@ -104,14 +71,21 @@
         Cargar más productos
       </button>
     </div>
+    <FooterAnth /> 
   </div>
 </template>
 
 <script>
 import axios from "axios";
+import HeaderAnth from "@/components/HeaderAnth.vue";
+import FooterAnth from "@/components/FooterAnth.vue";
 
 export default {
   name: "HomePage",
+  components: {
+    HeaderAnth,
+    FooterAnth,
+  },
   data() {
     return {
       banners: [],
@@ -121,7 +95,7 @@ export default {
       searchQuery: "",
       isAuthenticated: false,
       limiteProductos: 10,
-      intervalId: null, // Intervalo para cambiar el banner automáticamente
+      intervalId: null,
     };
   },
   async created() {
@@ -152,11 +126,15 @@ export default {
       console.error("Error al cargar los productos:", error);
     }
 
-    // Configurar cambio automático de banners
+    // Procesa el parámetro de búsqueda al cargar la página
+    const search = this.$route.query.search;
+    if (search) {
+      this.buscarProductos(search);
+    }
+
     this.startCarousel();
   },
-  beforeUnmount() { // Cambio de beforeDestroy a beforeUnmount
-    // Limpiar el intervalo al desmontar el componente
+  beforeUnmount() {
     this.stopCarousel();
   },
   methods: {
@@ -164,31 +142,40 @@ export default {
       this.intervalId = setInterval(() => {
         this.activeBanner =
           (this.activeBanner + 1) % this.banners.length;
-      }, 4000); // Cambiar cada 4 segundos
+      }, 4000);
     },
     stopCarousel() {
       if (this.intervalId) clearInterval(this.intervalId);
     },
     cargarMasProductos() {
-      const siguienteBloque = this.productos.slice(
-        this.productosMostrados.length,
-        this.productosMostrados.length + this.limiteProductos
-      );
-      this.productosMostrados = [...this.productosMostrados, ...siguienteBloque];
-    },
+  if (this.searchQuery.trim() !== "") {
+    // Si hay una búsqueda activa, no cargar más productos
+    console.warn("No se pueden cargar más productos durante la búsqueda.");
+    return;
+  }
+
+  const siguienteBloque = this.productos.slice(
+    this.productosMostrados.length,
+    this.productosMostrados.length + this.limiteProductos
+  );
+
+  this.productosMostrados = [...this.productosMostrados, ...siguienteBloque];
+},
+
     getFullImageUrl(relativeUrl) {
       return `http://localhost:5000${relativeUrl}`;
     },
     verDetalle(id) {
       this.$router.push({ name: "ProductoDetalle", params: { id } });
     },
-    buscarProductos() {
-      if (this.searchQuery.trim() !== "") {
+    buscarProductos(query) {
+      this.searchQuery = query; // Actualiza el valor local del query
+      if (query.trim() !== "") {
         this.productosMostrados = this.productos.filter((producto) =>
-          producto.nombre_producto
-            .toLowerCase()
-            .includes(this.searchQuery.toLowerCase())
+          producto.nombre_producto.toLowerCase().includes(query.toLowerCase())
         );
+      } else {
+        this.productosMostrados = this.productos.slice(0, this.limiteProductos); // Muestra productos iniciales si no hay búsqueda
       }
     },
     cerrarSesion() {
@@ -207,21 +194,16 @@ export default {
 <style >
 /* Estilos del fondo principal */
 body {
-  background-color:f5f5f1; /* Fondo gris claro */
+  background-color: #f5f5f5; /* Fondo gris claro */
   margin: 0;
   padding: 0;
 }
 
-
-
-
 /* Estilos del header */
-/* Estilos generales del header */
 .header {
   font-family: Arial, sans-serif;
 }
 
-/* Barra superior */
 .top-bar {
   display: flex;
   justify-content: space-between;
@@ -256,6 +238,7 @@ body {
 }
 
 .logo img {
+  width: 100px;
   height: 50px;
 }
 
@@ -267,23 +250,24 @@ body {
 }
 
 .search-bar input {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ccc;
+  width: 150px;
+  padding: 8px;
+  border: none;
   border-radius: 5px 0 0 5px;
 }
 
 .search-bar button {
-  padding: 10px 20px;
-  background-color: #ff8c00;
-  border: none;
+  padding: 12px 14px;
+  background-color: #ff9900;
   color: white;
+  border: none;
   border-radius: 0 5px 5px 0;
   cursor: pointer;
+  transition: background 0.3s ease;
 }
 
 .search-bar button:hover {
-  background-color: #ff9900;
+  background-color: #ff8c00;
 }
 
 .user-actions a,
@@ -302,7 +286,6 @@ body {
   text-decoration: underline;
 }
 
-/* Menú principal */
 .main-menu {
   background-color: #003366;
 }
@@ -332,34 +315,11 @@ body {
 .main-menu a:hover {
   background-color: #ff8c00;
 }
-.logo img {
-  width: 100px;
-  height: 100px;
-}
 
-
-.search-bar input {
-  padding: 8px;
-  border: none;
-  border-radius: 5px 0 0 5px;
-  width: 150px; /* Ajusta este valor para hacerlo más corto */
-}
-
-.search-bar button {
-  padding: 12px 14px; /* Reduce el padding horizontal para acortar el botón */
-  border: none;
-  background-color: #ff9900;
-  color: white;
-  border-radius: 0 5px 5px 0;
-  cursor: pointer;
-}
-
-
-.user-actions a,
-.user-actions button {
-  margin-left: 15px;
-  color: #ff9900;
-  text-decoration: none;
+/* Contenido principal */
+.home-container {
+  text-align: center;
+  margin: 30px;
 }
 
 .product-grid {
@@ -380,34 +340,7 @@ body {
   }
 }
 
-.cargar-mas {
-  display: block;
-  margin: 20px auto;
-  padding: 10px 20px;
-  font-size: 16px;
-  color: white;
-  background-color: #ff9900;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.search-bar button:hover:enabled {
-  background-color: #ff8c00;
-}
-
-.user-actions a:hover,
-.user-actions button:hover {
-  text-decoration: underline;
-}
-
-/* Estilos del contenido principal */
-.home-container {
-  text-align: center;
-  margin: 30px;
-}
-
-/* Mantener los contenedores de productos en blanco */
+/* Estilos de las tarjetas de producto con animación */
 .product-card {
   background-color: #ffffff; /* Fondo blanco */
   border: 1px solid #ddd;
@@ -415,7 +348,15 @@ body {
   padding: 20px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
 }
+
+.product-card:hover {
+  transform: scale(1.05); /* Aumenta el tamaño */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
 .product-card img {
   width: 180px; /* Ancho fijo */
   height: 180px; /* Alto fijo */
@@ -423,6 +364,12 @@ body {
   border-radius: 8px; /* Esquinas redondeadas */
   margin: 0 auto; /* Centra la imagen */
   display: block; /* Centrado */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.product-card:hover img {
+  transform: scale(1.1); /* Aumenta ligeramente la imagen */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Sombra más grande */
 }
 
 .product-card h3 {
@@ -449,11 +396,23 @@ body {
 }
 
 /* Botón de carga progresiva */
+.cargar-mas {
+  display: block;
+  margin: 20px auto;
+  padding: 10px 20px;
+  font-size: 16px;
+  color: white;
+  background-color: #ff9900;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
 .cargar-mas:hover {
   background-color: #ff8c00;
 }
 
-/* Estilos del carrusel */
+/* Carrusel */
 .carousel {
   position: relative;
   width: 851px;
@@ -468,12 +427,14 @@ body {
   position: absolute;
   width: 100%;
   height: 100%;
-  transition: opacity 0.5s ease-in-out;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out, transform 0.5s ease;
 }
 
 .carousel-item.active {
   display: block;
   opacity: 1;
+  transform: scale(1);
 }
 
 .banner-image {
@@ -502,4 +463,5 @@ body {
 .carousel-indicators .active {
   background-color: #fff;
 }
+
 </style>

@@ -1,21 +1,34 @@
 from marshmallow import Schema, fields, validate
 
+class ClienteSchema(Schema):
+    id = fields.Int(dump_only=True)
+    nombre_usuario = fields.Str(dump_only=True)
+
+class ProductoSchema(Schema):
+    id = fields.Int(dump_only=True)
+    nombre_producto = fields.Str(dump_only=True)
+
 class ReseñaSchema(Schema):
+    id = fields.Int(dump_only=True)  # Solo para lectura
     id_producto = fields.Int(
         required=True,
-        error_messages={"required": "El producto es obligatorio."}
+        error_messages={"required": "El campo 'id_producto' es obligatorio."}
     )
     id_cliente = fields.Int(
         required=True,
-        error_messages={"required": "El cliente es obligatorio."}
+        error_messages={"required": "El campo 'id_cliente' es obligatorio."}
     )
     calificacion = fields.Int(
         required=True,
-        validate=validate.Range(min=1, max=5, error="La calificación debe estar entre 1 y 5.")
+        validate=validate.Range(min=1, max=5, error="La calificación debe estar entre 1 y 5."),
+        error_messages={"required": "El campo 'calificacion' es obligatorio."}
     )
     texto_resena = fields.Str(
-        validate=validate.Length(max=1000, error="El texto de la reseña debe tener como máximo 1000 caracteres.")
+        validate=validate.Length(max=1000, error="El texto de la reseña debe tener como máximo 1000 caracteres."),
+        allow_none=True  # Permite que este campo sea opcional
     )
-    fecha_resena = fields.DateTime(
-        dump_only=True
-    )
+    fecha_resena = fields.DateTime(dump_only=True)  # Solo para lectura, se genera automáticamente
+
+    # Relaciones opcionales para serializar cliente y producto
+    cliente = fields.Nested(ClienteSchema, dump_only=True)  # Relación con Cliente
+    producto = fields.Nested(ProductoSchema, dump_only=True)  # Relación con Producto

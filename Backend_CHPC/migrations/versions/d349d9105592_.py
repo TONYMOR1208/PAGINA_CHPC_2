@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: d52fb084be9a
+Revision ID: d349d9105592
 Revises: 
-Create Date: 2024-11-27 14:54:43.889739
+Create Date: 2024-12-07 18:35:38.673348
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'd52fb084be9a'
+revision = 'd349d9105592'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -26,6 +26,8 @@ def upgrade():
     sa.Column('estado', sa.Boolean(), nullable=True),
     sa.Column('fecha_creacion', sa.DateTime(), nullable=True),
     sa.Column('fecha_modificacion', sa.DateTime(), nullable=True),
+    sa.Column('fecha_inicio', sa.DateTime(), nullable=True),
+    sa.Column('fecha_fin', sa.DateTime(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('categorias',
@@ -80,7 +82,8 @@ def upgrade():
     sa.Column('fecha_agregado', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['id_cliente'], ['usuarios.id'], ),
     sa.ForeignKeyConstraint(['id_producto'], ['productos.id'], ),
-    sa.PrimaryKeyConstraint('id')
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('id_cliente', 'id_producto', name='unique_cliente_producto')
     )
     op.create_table('media',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -88,9 +91,10 @@ def upgrade():
     sa.Column('tipo_media', sa.String(length=20), nullable=False),
     sa.Column('url', sa.String(length=255), nullable=False),
     sa.Column('descripcion', sa.Text(), nullable=True),
-    sa.Column('orden', sa.Integer(), nullable=True),
+    sa.Column('orden', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['id_producto'], ['productos.id'], ),
-    sa.PrimaryKeyConstraint('id')
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('id_producto', 'orden', name='unique_orden_producto')
     )
     op.create_table('reseñas',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -99,6 +103,7 @@ def upgrade():
     sa.Column('calificacion', sa.Integer(), nullable=False),
     sa.Column('texto_resena', sa.Text(), nullable=True),
     sa.Column('fecha_resena', sa.DateTime(), nullable=True),
+    sa.CheckConstraint('calificacion BETWEEN 1 AND 5', name='check_calificacion_valida'),
     sa.ForeignKeyConstraint(['id_cliente'], ['usuarios.id'], ),
     sa.ForeignKeyConstraint(['id_producto'], ['productos.id'], ),
     sa.PrimaryKeyConstraint('id')

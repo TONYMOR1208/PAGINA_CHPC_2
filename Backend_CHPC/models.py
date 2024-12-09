@@ -6,6 +6,7 @@ from sqlalchemy import Enum
 db = SQLAlchemy()
 bcrypt = Bcrypt()
 
+
 class Usuario(db.Model):
     __tablename__ = 'usuarios'
     id = db.Column(db.Integer, primary_key=True)
@@ -19,8 +20,8 @@ class Usuario(db.Model):
     fecha_modificacion = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relaciones
-    reseñas_usuario = db.relationship('Reseña', backref='cliente', cascade='all, delete-orphan', lazy=True)
-    carrito_usuario = db.relationship('Carrito', backref='cliente', cascade='all, delete-orphan', lazy=True)
+    reseñas_usuario = db.relationship('Reseña', backref='cliente', cascade='all, delete-orphan', lazy="dynamic")
+    carrito_usuario = db.relationship('Carrito', backref='cliente', cascade='all, delete-orphan', lazy="dynamic")
 
     def set_password(self, contraseña):
         self.contraseña = bcrypt.generate_password_hash(contraseña).decode('utf-8')
@@ -81,7 +82,11 @@ class Media(db.Model):
     tipo_media = db.Column(db.String(20), nullable=False)
     url = db.Column(db.String(255), nullable=False)
     descripcion = db.Column(db.Text)
-    orden = db.Column(db.Integer, default=0)
+    orden = db.Column(db.Integer, default=0, nullable=False)
+
+    __table_args__ = (
+        db.UniqueConstraint('id_producto', 'orden', name='unique_orden_producto'),
+    )
 
 
 class Reseña(db.Model):
@@ -93,6 +98,10 @@ class Reseña(db.Model):
     texto_resena = db.Column(db.Text)
     fecha_resena = db.Column(db.DateTime, default=datetime.utcnow)
 
+    __table_args__ = (
+        db.CheckConstraint('calificacion BETWEEN 1 AND 5', name='check_calificacion_valida'),
+    )
+
 
 class Carrito(db.Model):
     __tablename__ = 'carrito'
@@ -102,11 +111,13 @@ class Carrito(db.Model):
     cantidad = db.Column(db.Integer, nullable=False)
     fecha_agregado = db.Column(db.DateTime, default=datetime.utcnow)
 
+    __table_args__ = (
+        db.UniqueConstraint('id_cliente', 'id_producto', name='unique_cliente_producto'),
+    )
 
 
 class Banner(db.Model):
     __tablename__ = 'banners'
-
     id = db.Column(db.Integer, primary_key=True)
     titulo = db.Column(db.String(150), nullable=False)
     imagen_url = db.Column(db.String(255), nullable=False)
@@ -114,5 +125,5 @@ class Banner(db.Model):
     estado = db.Column(db.Boolean, default=True)
     fecha_creacion = db.Column(db.DateTime, default=datetime.utcnow)
     fecha_modificacion = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-
+    fecha_inicio = db.Column(db.DateTime, nullable=True)
+    fecha_fin = db.Column(db.DateTime, nullable=True)

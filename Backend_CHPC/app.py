@@ -9,7 +9,7 @@ from routes.categoria_routes import bp as categoria_bp
 from routes.marca_routes import bp as marca_bp
 from routes.media_routes import bp as media_bp
 from routes.producto_routes import bp as producto_bp
-from routes.reseña_routes import bp as resena_bp
+from routes.reseña_routes import reseña_routes  # Importar el blueprint de reseñas
 from routes.upload_routes import upload_bp  # Nuevo: Rutas para cargar imágenes
 
 from flask_migrate import Migrate
@@ -71,7 +71,7 @@ app.register_blueprint(categoria_bp, url_prefix="/tienda/categorias")
 app.register_blueprint(marca_bp, url_prefix="/tienda/marcas")
 app.register_blueprint(media_bp, url_prefix="/tienda/media")
 app.register_blueprint(producto_bp, url_prefix="/tienda/productos")
-app.register_blueprint(resena_bp, url_prefix="/tienda/resenas")
+app.register_blueprint(reseña_routes, url_prefix="/tienda/reseñas")  # Registrar el blueprint de reseñas
 app.register_blueprint(upload_bp, url_prefix="/tienda/uploads")  # Nuevo: Cargar imágenes
 
 # Ejecutar aplicación
