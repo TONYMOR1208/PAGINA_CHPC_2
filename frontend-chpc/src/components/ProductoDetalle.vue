@@ -8,6 +8,8 @@
   <br />
   <br />
   <br />
+
+
   <div class="producto-contenedor">
     <!-- Mensaje de carga -->
     <div v-if="isLoading" class="mensaje-carga">
@@ -83,33 +85,42 @@
             </ul>
           </div>
 
-          <!-- Botones de acción -->
           <div class="botones-accion">
-            <button class="boton-compra">Comprar ahora</button>
-            <button class="boton-carrito">Añadir al carrito</button>
-          </div>
+  <button class="boton-compra">Comprar ahora</button>
+  <button class="boton-carrito">Añadir al carrito</button>
+  <button class="boton-reseña" @click="redirigirAgregarReseña">Agregar Reseña</button>
+</div>
+
         </div>
       </div>
     </div>
-   
+
+    
   </div>
+ 
   <br>
   <br>
   <br>
   <br>
+
   <FooterAnth /> 
 </template>
+
 
 <script>
 import axios from "axios";
 import HeaderAnth from "@/components/HeaderAnth.vue";
 import FooterAnth from "@/components/FooterAnth.vue";
 
+
+
 export default {
   name: "ProductoDetalle",
   components: {
     HeaderAnth,
     FooterAnth,
+ 
+  
   },
   data() {
     return {
@@ -163,10 +174,14 @@ export default {
     getFullImageUrl(relativeUrl) {
       return `http://localhost:5000${relativeUrl}`;
     },
+    redirigirAgregarReseña() {
+    this.$router.push({ name: "ReseñasProductos", params: { id: this.$route.params.id } });
+  },
     redirigirLogin() {
       this.$router.push("/login");
     },
   },
+  
   async created() {
     this.isAuthenticated = !!localStorage.getItem("access_token");
 
@@ -206,6 +221,23 @@ export default {
 .detalle-contenedor:hover {
   transform: scale(1.02); /* Ampliación suave */
 }
+.boton-reseña {
+  padding: 12px 20px;
+  font-size: 18px;
+  font-weight: bold;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  background-color: #ffc107; /* Color de botón amarillo */
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.boton-reseña:hover {
+  background-color: #e0a800; /* Cambio de color al pasar el cursor */
+  transform: translateY(-2px);
+}
+
 
 /* Galería de imágenes */
 .galeria-imagenes {

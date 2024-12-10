@@ -2,7 +2,8 @@ import { createRouter, createWebHistory } from 'vue-router';
 import SesionUsuario from '../components/SesionUsuario.vue';
 import RegistroUsuario from '../components/RegistroUsuario.vue';
 import Home from '../components/Home.vue'; // Cambié '@/' a '../'
-import ProductoDetalle from '../components/ProductoDetalle.vue'; 
+import ProductoDetalle from '../components/ProductoDetalle.vue';
+import ReseñasProductos from '../components/ReseñasProductos.vue'; // Importa el nuevo componente
 
 const routes = [
   { path: '/', redirect: '/home' },
@@ -39,6 +40,11 @@ const routes = [
     path: '/producto/:id', 
     component: ProductoDetalle, 
     name: 'ProductoDetalle' 
+  },
+  { 
+    path: '/producto/:id/reseñas', 
+    component: ReseñasProductos, 
+    name: 'ReseñasProductos' 
   }
 ];
 

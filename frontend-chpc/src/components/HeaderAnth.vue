@@ -82,7 +82,7 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #0053a0;
+  background-color: #FFFFFF;
   padding: 10px 20px;
 }
 

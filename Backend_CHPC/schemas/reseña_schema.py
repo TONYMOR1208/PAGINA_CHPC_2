@@ -9,7 +9,7 @@ class ProductoSchema(Schema):
     nombre_producto = fields.Str(dump_only=True)
 
 class ReseñaSchema(Schema):
-    id = fields.Int(dump_only=True)  # Solo para lectura
+    id = fields.Int(dump_only=True)  # Solo lectura
     id_producto = fields.Int(
         required=True,
         error_messages={"required": "El campo 'id_producto' es obligatorio."}
@@ -25,10 +25,12 @@ class ReseñaSchema(Schema):
     )
     texto_resena = fields.Str(
         validate=validate.Length(max=1000, error="El texto de la reseña debe tener como máximo 1000 caracteres."),
-        allow_none=True  # Permite que este campo sea opcional
+        allow_none=True  # Opcional
     )
-    fecha_resena = fields.DateTime(dump_only=True)  # Solo para lectura, se genera automáticamente
-
-    # Relaciones opcionales para serializar cliente y producto
+    fecha_resena = fields.DateTime(dump_only=True)  # Solo lectura
     cliente = fields.Nested(ClienteSchema, dump_only=True)  # Relación con Cliente
     producto = fields.Nested(ProductoSchema, dump_only=True)  # Relación con Producto
+
+# Exporta las instancias necesarias
+reseña_schema = ReseñaSchema()
+reseñas_schema = ReseñaSchema(many=True)
