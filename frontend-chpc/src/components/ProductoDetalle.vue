@@ -9,7 +9,6 @@
   <br />
   <br />
 
-
   <div class="producto-contenedor">
     <!-- Mensaje de carga -->
     <div v-if="isLoading" class="mensaje-carga">
@@ -34,24 +33,39 @@
       class="producto-detalle"
     >
       <div class="detalle-contenedor">
-        <!-- Imágenes del producto -->
+        <!-- Galería de medios del producto -->
         <div class="galeria-imagenes">
           <div class="miniaturas">
-            <img
-              v-for="(media, index) in producto.media || []"
-              :key="index"
-              :src="getFullImageUrl(media.url)"
-              :alt="`Imagen adicional ${index + 1}`"
-              class="imagen-miniatura"
-              @click="cambiarImagenPrincipal(index)"
-            />
+            <template v-for="(media, index) in producto.media || []" :key="index">
+              <img
+                v-if="media.tipo_media === 'imagen'"
+                :src="getFullImageUrl(media.url)"
+                :alt="`Imagen adicional ${index + 1}`"
+                class="imagen-miniatura"
+                @click="cambiarImagenPrincipal(index)"
+              />
+              <video
+                v-else-if="media.tipo_media === 'video'"
+                class="video-miniatura"
+                :src="getFullImageUrl(media.url)"
+                controls
+                @click="cambiarImagenPrincipal(index)"
+              ></video>
+            </template>
           </div>
           <div class="imagen-principal">
             <img
+              v-if="producto.media?.[imagenSeleccionada]?.tipo_media === 'imagen'"
               :src="getFullImageUrl(producto.media?.[imagenSeleccionada]?.url || '')"
               :alt="`Imagen principal de ${producto.nombre_producto || ''}`"
               class="imagen-grande"
             />
+            <video
+              v-else-if="producto.media?.[imagenSeleccionada]?.tipo_media === 'video'"
+              class="video-grande"
+              :src="getFullImageUrl(producto.media?.[imagenSeleccionada]?.url || '')"
+              controls
+            ></video>
           </div>
         </div>
 
@@ -71,40 +85,44 @@
           <p class="stock-producto">
             {{ producto.stock > 0 ? "En stock" : "Agotado" }}
           </p>
+<!-- Descripción en formato de lista -->
+<div class="descripcion-producto">
+    <p><strong>Descripción:</strong></p>
+    <ul>
+      <li><strong>Nombre del Producto:</strong> {{ producto.nombre_producto || 'Sin nombre' }}</li>
+      <li v-if="producto.descripcion"><strong>Descripción del Producto:</strong> {{ producto.descripcion }}</li>
+      <li><strong>Precio:</strong> USD ${{ formatPrice(producto.precio) }}</li>
+      <li><strong>Stock:</strong> {{ producto.stock > 0 ? 'Disponible' : 'Agotado' }}</li>
+      <li v-if="producto.peso"><strong>Peso:</strong> {{ producto.peso }} kg</li>
+      <li v-if="producto.color"><strong>Color:</strong> {{ producto.color }}</li>
+      <li v-if="producto.volumen"><strong>Volumen:</strong> {{ producto.volumen }} ml</li>
 
-          <!-- Descripción en formato de lista -->
-          <div class="descripcion-producto">
-            <p><strong>Descripción:</strong></p>
-            <ul>
-              <li><strong>Categoría:</strong> {{ producto.categoria?.nombre_categoria || 'Sin categoría' }}</li>
-              <li><strong>Marca:</strong> {{ producto.marca?.nombre_marca || 'Sin marca' }}</li>
-              <li v-if="producto.peso"><strong>Peso:</strong> {{ producto.peso }} kg</li>
-              <li v-if="producto.color"><strong>Color:</strong> {{ producto.color }}</li>
-              <li v-if="producto.volumen"><strong>Volumen:</strong> {{ producto.volumen }} ml</li>
-              <li v-if="producto.descripcion"><strong>Detalles:</strong> {{ producto.descripcion }}</li>
-            </ul>
-          </div>
+      <li><strong>Marca:</strong> {{ producto.marca?.nombre_marca || 'Sin marca' }}</li>
+      <li v-if="producto.marca?.descripcion"><strong>Descripción de la Marca:</strong> {{ producto.marca.descripcion }}</li>
+      <li v-if="producto.marca?.sitio_web"><strong>Sitio Web de la Marca:</strong> <a :href="producto.marca.sitio_web" target="_blank">{{ producto.marca.sitio_web }}</a></li>
+
+      <li><strong>Categoría:</strong> {{ producto.categoria?.nombre_categoria || 'Sin categoría' }}</li>
+    </ul>
+  </div>
 
           <div class="botones-accion">
-  <button class="boton-compra">Comprar ahora</button>
-  <button class="boton-carrito">Añadir al carrito</button>
-  <button class="boton-reseña" @click="redirigirAgregarReseña">Agregar Reseña</button>
-</div>
-
+            <button class="boton-compra">Comprar ahora</button>
+            <button class="boton-carrito">Añadir al carrito</button>
+            <button class="boton-reseña" @click="redirigirAgregarReseña">Agregar Reseña</button>
+          </div>
         </div>
       </div>
     </div>
-
-    
   </div>
- 
+
   <br>
   <br>
   <br>
   <br>
 
-  <FooterAnth /> 
+  <FooterAnth />
 </template>
+
 
 
 <script>
@@ -112,25 +130,23 @@ import axios from "axios";
 import HeaderAnth from "@/components/HeaderAnth.vue";
 import FooterAnth from "@/components/FooterAnth.vue";
 
-
-
 export default {
   name: "ProductoDetalle",
   components: {
     HeaderAnth,
     FooterAnth,
- 
-  
   },
   data() {
     return {
       producto: {
-        media: [],
+        media: [], // Lista de medios del producto (imágenes y videos)
+        categoria: {}, // Información de la categoría del producto
+        marca: {}, // Información de la marca del producto
       },
       errorMessage: "",
       isLoading: true,
       isAuthenticated: false,
-      imagenSeleccionada: 0,
+      imagenSeleccionada: 0, // Índice del medio seleccionado
       searchQuery: "",
     };
   },
@@ -145,15 +161,36 @@ export default {
 
       const productoId = this.$route.params.id;
       try {
+        // Obtener los datos del producto
         const response = await axios.get(
           `http://localhost:5000/tienda/productos/${productoId}`,
           { headers: { Authorization: `Bearer ${localStorage.getItem("access_token")}` } }
         );
         this.producto = response.data;
+
+        // Validar que todos los medios tengan el campo `tipo_media`
+        this.producto.media = this.producto.media.map((media) => ({
+          ...media,
+          tipo_media: media.tipo_media || "imagen", // Predeterminar como "imagen" si no está definido
+        }));
+
+        // Llamar a los endpoints de categoría y marca si existen
+        if (this.producto.categoria_id) {
+          const categoriaResponse = await axios.get(
+            `http://localhost:5000/tienda/categorias/${this.producto.categoria_id}`
+          );
+          this.producto.categoria = categoriaResponse.data;
+        }
+
+        if (this.producto.marca_id) {
+          const marcaResponse = await axios.get(
+            `http://localhost:5000/marcas/${this.producto.marca_id}`
+          );
+          this.producto.marca = marcaResponse.data;
+        }
       } catch (error) {
         this.errorMessage =
-          error.response?.data?.message ||
-          "Hubo un problema al cargar el producto.";
+          error.response?.data?.message || "Hubo un problema al cargar el producto.";
       } finally {
         this.isLoading = false;
       }
@@ -166,6 +203,7 @@ export default {
       }
     },
     cambiarImagenPrincipal(index) {
+      // Cambiar el medio seleccionado (imagen o video)
       this.imagenSeleccionada = index;
     },
     formatPrice(price) {
@@ -175,13 +213,12 @@ export default {
       return `http://localhost:5000${relativeUrl}`;
     },
     redirigirAgregarReseña() {
-    this.$router.push({ name: "ReseñasProductos", params: { id: this.$route.params.id } });
-  },
+      this.$router.push({ name: "ReseñasProductos", params: { id: this.$route.params.id } });
+    },
     redirigirLogin() {
       this.$router.push("/login");
     },
   },
-  
   async created() {
     this.isAuthenticated = !!localStorage.getItem("access_token");
 
@@ -191,6 +228,8 @@ export default {
   },
 };
 </script>
+
+
 
 <style scoped>
 /* Contenedor principal */
@@ -232,6 +271,28 @@ export default {
   background-color: #ffc107; /* Color de botón amarillo */
   transition: background-color 0.3s ease, transform 0.2s ease;
 }
+.video-miniatura {
+  width: 90px;
+  height: 90px;
+  object-fit: cover;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.video-miniatura:hover {
+  transform: scale(1.2);
+  border-color: #007bff;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.video-grande {
+  max-width: 100%;
+  max-height: 500px;
+  border-radius: 15px;
+}
+
 
 .boton-reseña:hover {
   background-color: #e0a800; /* Cambio de color al pasar el cursor */
