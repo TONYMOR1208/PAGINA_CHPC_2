@@ -274,7 +274,7 @@ body {
 .user-actions button {
   margin-left: 15px;
   text-decoration: none;
-  color: white;
+  color: rgb(229, 135, 19);
   font-weight: bold;
   background-color: transparent;
   border: none;
