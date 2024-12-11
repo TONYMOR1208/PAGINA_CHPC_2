@@ -1,12 +1,5 @@
 <template>
   
-    <!-- Encabezado -->
-    <HeaderAnth
-      :searchQuery="searchQuery"
-      :isAuthenticated="isAuthenticated"
-      @buscar="buscarProductos"
-      @cerrar-sesion="cerrarSesion"
-    />
 
     <!-- Título -->
     <div class="reseñas-container">
@@ -83,13 +76,11 @@
 
 <script>
 import axios from "axios";
-import HeaderAnth from "./HeaderAnth.vue";
+
 
 export default {
   name: "ReseñasProductos",
-  components: {
-    HeaderAnth,
-  },
+
   data() {
     return {
       reseñas: [],
@@ -115,35 +106,35 @@ export default {
       }
     },
     async guardarResena() {
-      try {
-        if (this.editMode) {
-          // Actualizar reseña
-          await axios.put(
-            `http://localhost:5000/tienda/reseñas/${this.reseñaEditandoId}`,
-            {
-              calificacion: this.calificacion,
-              texto_resena: this.texto_resena,
-            }
-          );
-          this.success = "Reseña actualizada con éxito.";
-        } else {
-          // Crear reseña
-          await axios.post("http://localhost:5000/tienda/reseñas/", {
-            id_producto: this.id_producto,
-            id_cliente: this.id_cliente,
-            calificacion: this.calificacion,
-            texto_resena: this.texto_resena,
-          });
-          this.success = "Reseña enviada con éxito.";
-        }
-        this.error = "";
-        this.resetFormulario();
-        this.obtenerReseñas();
-      } catch (err) {
-        this.error = err.response?.data?.message || "Error al procesar la reseña.";
-        this.success = "";
-      }
-    },
+  try {
+    const payload = {
+      id_producto: this.id_producto,
+      id_cliente: this.id_cliente,
+      calificacion: this.calificacion,
+      texto_resena: this.texto_resena
+    };
+    console.log("Payload enviado:", payload);
+
+    if (this.editMode) {
+      await axios.put(`http://localhost:5000/tienda/reseñas/${this.reseñaEditandoId}`, {
+        calificacion: this.calificacion,
+        texto_resena: this.texto_resena,
+      });
+      this.success = "Reseña actualizada con éxito.";
+    } else {
+      await axios.post("http://localhost:5000/tienda/reseñas/", payload);
+      this.success = "Reseña enviada con éxito.";
+    }
+    this.error = "";
+    this.resetFormulario();
+    this.obtenerReseñas();
+  } catch (err) {
+    console.error("Error al guardar la reseña:", err);
+    this.error = err.response?.data?.error || "Error al procesar la reseña.";
+    this.success = "";
+  }
+},
+
     resetFormulario() {
       this.editMode = false;
       this.reseñaEditandoId = null;

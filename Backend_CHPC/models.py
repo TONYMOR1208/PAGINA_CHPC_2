@@ -51,6 +51,7 @@ class Marca(db.Model):
     nombre_marca = db.Column(db.String(80), nullable=False)
     descripcion = db.Column(db.Text)
     sitio_web = db.Column(db.String(255))
+    imagen_url = db.Column(db.String(255), nullable=False)  # Campo para almacenar la URL de la imagen de la marca
 
     # Relaciones
     productos_marca = db.relationship('Producto', backref='marca', cascade='all, delete-orphan', lazy=True)

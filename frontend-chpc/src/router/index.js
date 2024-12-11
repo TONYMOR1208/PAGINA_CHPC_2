@@ -3,6 +3,7 @@ import SesionUsuario from '../components/SesionUsuario.vue';
 import RegistroUsuario from '../components/RegistroUsuario.vue';
 import Home from '../components/Home.vue'; // Cambié '@/' a '../'
 import ProductoDetalle from '../components/ProductoDetalle.vue';
+import ListaMarcas from '@/components/ListaMarcas.vue';
 import ReseñasProductos from '../components/ReseñasProductos.vue'; // Importa el nuevo componente
 
 const routes = [
@@ -45,8 +46,16 @@ const routes = [
     path: '/producto/:id/reseñas', 
     component: ReseñasProductos, 
     name: 'ReseñasProductos' 
-  }
+  },
+ 
+    { 
+      path: '/marcas', 
+      component: ListaMarcas, // Usar el nuevo nombre del componente
+      name: 'ListaMarcas' // Cambiar el nombre para la ruta
+    }
+ 
 ];
+
 
 const router = createRouter({
   history: createWebHistory(),

@@ -194,7 +194,7 @@ export default {
 
         if (this.producto.marca_id) {
           const marcaResponse = await axios.get(
-            `http://localhost:5000/marcas/${this.producto.marca_id}`
+            `http://localhost:5000/tienda/marcas/${this.producto.marca_id}`
           );
           this.producto.marca = marcaResponse.data;
         }

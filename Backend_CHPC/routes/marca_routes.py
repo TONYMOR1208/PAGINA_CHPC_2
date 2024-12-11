@@ -11,12 +11,23 @@ marcas_schema = MarcaSchema(many=True)
 @bp.route('/', methods=['GET'])
 def obtener_marcas():
     marcas = Marca.query.all()
-    return jsonify(marcas_schema.dump(marcas)), 200
+    marcas_data = [
+        {
+            "nombre_marca": marca.nombre_marca,
+            "imagen_url": marca.imagen_url
+        }
+        for marca in marcas
+    ]
+    return jsonify(marcas_data), 200
 
 @bp.route('/<int:id>', methods=['GET'])
 def obtener_marca(id):
     marca = Marca.query.get_or_404(id)
-    return jsonify(marca_schema.dump(marca)), 200
+    marca_data = {
+        "nombre_marca": marca.nombre_marca,
+        "imagen_url": marca.imagen_url
+    }
+    return jsonify(marca_data), 200
 
 @bp.route('/', methods=['POST'])
 def crear_marca():
@@ -28,7 +39,8 @@ def crear_marca():
     nueva_marca = Marca(
         nombre_marca=data['nombre_marca'],
         descripcion=data.get('descripcion'),
-        sitio_web=data.get('sitio_web')
+        sitio_web=data.get('sitio_web'),
+        imagen_url=data.get('imagen_url')  # Nuevo campo para la URL de la imagen
     )
     db.session.add(nueva_marca)
     db.session.commit()
@@ -45,6 +57,7 @@ def actualizar_marca(id):
     marca.nombre_marca = data.get('nombre_marca', marca.nombre_marca)
     marca.descripcion = data.get('descripcion', marca.descripcion)
     marca.sitio_web = data.get('sitio_web', marca.sitio_web)
+    marca.imagen_url = data.get('imagen_url', marca.imagen_url)  # Actualización del campo de imagen
     db.session.commit()
     return jsonify(marca_schema.dump(marca)), 200
 

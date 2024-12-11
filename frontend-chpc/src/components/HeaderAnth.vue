@@ -29,10 +29,7 @@
       <ul>
         <li><a href="#">Computo</a></li>
         <li><a href="#">Redes</a></li>
-        <li><a href="#">Electrónica</a></li>
-        <li><a href="#">Accesorios</a></li>
-        <li><a href="#">Gaming</a></li>
-        <li><a href="#">Marcas</a></li>
+        <li><a href="/marcas">Marcas</a></li>
       </ul>
     </nav>
   </header>

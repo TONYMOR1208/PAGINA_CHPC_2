@@ -24,12 +24,14 @@ app.config.from_object(Config)
 
 # Configuración de carpetas para imágenes
 app.config['UPLOAD_FOLDER'] = os.path.join(os.getcwd(), 'static', 'uploads')
-app.config['AIMAPRO_FOLDER'] = os.path.join(os.getcwd(), 'static', 'AimaPro')  # Ruta de la carpeta AimaPro
+app.config['AIMAPRO_FOLDER'] = os.path.join(os.getcwd(), 'static', 'AimaPro')
+app.config['LOGOSMARCAS_FOLDER'] = os.path.join(os.getcwd(), 'static', 'logosmarcas')  # Nueva carpeta
 app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}
 
 # Asegurar que las carpetas estáticas existen
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 os.makedirs(app.config['AIMAPRO_FOLDER'], exist_ok=True)
+os.makedirs(app.config['LOGOSMARCAS_FOLDER'], exist_ok=True)
 
 # Habilitar CORS
 CORS(app)
@@ -58,6 +60,12 @@ def serve_aima_pro(filename):
     """Servir archivos desde la carpeta static/AimaPro."""
     return send_from_directory(app.config['AIMAPRO_FOLDER'], filename)
 
+# Ruta para servir archivos de logosmarcas
+@app.route('/static/logosmarcas/<path:filename>')
+def serve_logosmarcas(filename):
+    """Servir archivos desde la carpeta static/logosmarcas."""
+    return send_from_directory(app.config['LOGOSMARCAS_FOLDER'], filename)
+
 # Ruta de prueba
 @app.route("/")
 def index():
@@ -79,4 +87,5 @@ if __name__ == "__main__":
     # Crear las carpetas necesarias si no existen
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
     os.makedirs(app.config['AIMAPRO_FOLDER'], exist_ok=True)
+    os.makedirs(app.config['LOGOSMARCAS_FOLDER'], exist_ok=True)
     app.run(debug=True)
