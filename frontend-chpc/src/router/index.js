@@ -5,7 +5,7 @@ import Home from '../components/Home.vue'; // Cambié '@/' a '../'
 import ProductoDetalle from '../components/ProductoDetalle.vue';
 import ListaMarcas from '@/components/ListaMarcas.vue';
 import ReseñasProductos from '../components/ReseñasProductos.vue';
-
+import RedesSociales from '@/components/RedesSociales.vue';
 
 const routes = [
   { path: '/', redirect: '/home' },
@@ -52,8 +52,12 @@ const routes = [
     path: '/marcas', 
     component: ListaMarcas, // Usar el nuevo nombre del componente
     name: 'ListaMarcas' // Cambiar el nombre para la ruta
-  }
-
+  },
+  {
+    path: '/redes-sociales', // Corregido de 'patch' a 'path'
+    component: RedesSociales,
+    name: 'RedesSociales'
+  },
 ];
 
 const router = createRouter({

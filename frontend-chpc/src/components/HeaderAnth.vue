@@ -28,7 +28,7 @@
     <nav class="main-menu">
       <ul>
         <li><a href="#">Computo</a></li>
-        <li><a href="#">Redes</a></li>
+        <li><a href="/redes-sociales">Redes Sociales</a></li>
         <li><a href="/marcas">Marcas</a></li>
       </ul>
     </nav>
