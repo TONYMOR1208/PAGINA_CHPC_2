@@ -9,7 +9,7 @@ from routes.categoria_routes import bp as categoria_bp
 from routes.marca_routes import bp as marca_bp
 from routes.media_routes import bp as media_bp
 from routes.producto_routes import bp as producto_bp
-from routes.reseña_routes import reseña_routes  # Importar el blueprint de reseñas
+from routes.reseña_routes import bp as reseña_routes  # Nuevo: Rutas para reseñas
 from routes.upload_routes import upload_bp  # Nuevo: Rutas para cargar imágenes
 
 from flask_migrate import Migrate

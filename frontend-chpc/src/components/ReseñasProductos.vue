@@ -1,253 +1,294 @@
 <template>
-  <HeaderAnth
-    :searchQuery="searchQuery"
-    :isAuthenticated="isAuthenticated"
-    @buscar="buscarProductos"
-    @cerrar-sesion="cerrarSesion"
-  />
-  <div class="reseñas-productos">
-    <button class="boton-volver" @click="$router.push('/')">Volver</button>
-    <h1>Reseñas del Producto</h1>
+  
+    <!-- Encabezado -->
+    <HeaderAnth
+      :searchQuery="searchQuery"
+      :isAuthenticated="isAuthenticated"
+      @buscar="buscarProductos"
+      @cerrar-sesion="cerrarSesion"
+    />
 
-    <!-- Indicador de carga -->
-    <div v-if="isLoading" class="spinner"></div>
+    <!-- Título -->
+    <div class="reseñas-container">
+    <div class="header">
+      <h1>Reseñas del Producto</h1>
+      <p class="breadcrumb">
+        <router-link to="/">Inicio</router-link> / <span>Reseñas</span>
+      </p>
+    </div>
 
-    <!-- Lista de reseñas -->
-    <ul v-if="!isLoading && reseñas.length">
-      <li v-for="reseña in reseñas" :key="reseña.id" class="reseña-item">
-        <p><strong>Calificación:</strong> {{ reseña.calificacion }}</p>
-        <p><strong>Comentario:</strong> {{ reseña.texto_resena || "Sin comentario" }}</p>
-        <p><strong>Cliente:</strong> {{ reseña.cliente.nombre_usuario || "Anónimo" }}</p>
-        <p><small><strong>Fecha:</strong> {{ new Date(reseña.fecha_resena).toLocaleDateString() }}</small></p>
-      </li>
-    </ul>
-    <p v-else-if="!isLoading">No hay reseñas disponibles.</p>
-
-    <!-- Formulario para agregar una nueva reseña -->
-    <h2>Agregar una Reseña</h2>
-    <form @submit.prevent="agregarReseña" class="form-reseña" v-if="isAuthenticated">
-      <div>
-        <label for="calificacion">Calificación:</label>
-        <select v-model="nuevaReseña.calificacion" id="calificacion" required>
-          <option v-for="i in 5" :key="i" :value="i">{{ i }}</option>
-        </select>
+    <!-- Listado de reseñas -->
+    <section class="reseñas-list">
+      <h2>Lo que dicen nuestros clientes</h2>
+      <div v-if="reseñas.length">
+        <div v-for="reseña in reseñas" :key="reseña.id" class="reseña-item">
+          <div class="reseña-header">
+            <p class="nombre-cliente">{{ reseña.cliente.nombre_usuario }}</p>
+            <p class="calificacion">{{ reseña.calificacion }} ★</p>
+          </div>
+          <p class="comentario">{{ reseña.texto_resena }}</p>
+          <p class="fecha">{{ new Date(reseña.fecha_resena).toLocaleDateString() }}</p>
+          <div class="acciones">
+            <button class="btn-editar" @click="editarResena(reseña)">Editar</button>
+            <button class="btn-eliminar" @click="eliminarResena(reseña.id)">Eliminar</button>
+          </div>
+        </div>
       </div>
+      <p v-else>No hay reseñas disponibles. Sé el primero en opinar.</p>
+    </section>
 
-      <div>
-        <label for="comentario">Comentario:</label>
-        <textarea
-          v-model="nuevaReseña.comentario"
-          id="comentario"
-          placeholder="Escribe tu comentario aquí..."
-          maxlength="250"
-          required
-        ></textarea>
-      </div>
+    <!-- Formulario para crear o editar reseñas -->
+    <section class="reseña-form">
+      <h2>{{ editMode ? 'Editar Reseña' : 'Deja tu Reseña' }}</h2>
+      <form @submit.prevent="guardarResena">
+        <div class="form-group">
+          <label for="calificacion">Calificación *</label>
+          <input
+            v-model="calificacion"
+            id="calificacion"
+            type="number"
+            min="1"
+            max="5"
+            required
+            class="input"
+            placeholder="Calificación (1-5)"
+          />
+        </div>
 
-      <button type="submit" class="boton-enviar">Enviar Reseña</button>
-    </form>
-    <p v-else>
-      <strong>Inicia sesión para agregar una reseña.</strong>
-      <button @click="redirigirLogin" class="boton-login">Iniciar Sesión</button>
-    </p>
+        <div class="form-group">
+          <label for="texto_resena">Comentario *</label>
+          <textarea
+            v-model="texto_resena"
+            id="texto_resena"
+            class="textarea"
+            placeholder="Escribe tu opinión aquí"
+            required
+          ></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn-submit">
+            {{ editMode ? 'Actualizar' : 'Enviar' }}
+          </button>
+          <button v-if="editMode" type="button" @click="resetFormulario" class="btn-cancelar">Cancelar</button>
+        </div>
+      </form>
+
+      <!-- Mensajes de éxito y error -->
+      <p v-if="success" class="message success">{{ success }}</p>
+      <p v-if="error" class="message error">{{ error }}</p>
+    </section>
   </div>
-  <FooterAnth />
 </template>
 
 <script>
 import axios from "axios";
 import HeaderAnth from "./HeaderAnth.vue";
-import FooterAnth from "./FooterAnth.vue";
 
 export default {
   name: "ReseñasProductos",
   components: {
     HeaderAnth,
-    FooterAnth,
   },
   data() {
     return {
-      idProducto: null, // ID del producto
-      reseñas: [], // Lista de reseñas
-      nuevaReseña: {
-        comentario: "",
-        calificacion: 1,
-        id_cliente: null, // Este valor deberá configurarse según el cliente autenticado
-      },
-      isLoading: false, // Indicador de carga
-      isAuthenticated: false,
+      reseñas: [],
+      calificacion: "",
+      texto_resena: "",
+      id_producto: 1, // Producto actual (dinámico en producción)
+      id_cliente: 1, // Cliente autenticado (dinámico en producción)
+      success: "",
+      error: "",
+      editMode: false,
+      reseñaEditandoId: null,
     };
   },
   methods: {
-    // Verifica si el usuario está autenticado
-    verificarAutenticacion() {
-      this.isAuthenticated = !!localStorage.getItem("access_token");
-    },
-
-    // Cargar reseñas para un producto específico
-    async cargarReseñas() {
-      this.isLoading = true;
+    async obtenerReseñas() {
       try {
         const response = await axios.get(
-          `http://localhost:5000/tienda/reseñas?producto=${this.idProducto}`
+          `http://localhost:5000/tienda/reseñas/producto/${this.id_producto}`
         );
         this.reseñas = response.data;
-      } catch (error) {
-        console.error("Error al cargar las reseñas:", error);
-        alert(
-          error.response?.data?.message || "Hubo un error al cargar las reseñas."
-        );
-      } finally {
-        this.isLoading = false;
+      } catch (err) {
+        this.error = err.response?.data?.message || "Error al cargar las reseñas.";
       }
     },
-
-    // Agregar una nueva reseña
-    async agregarReseña() {
+    async guardarResena() {
       try {
-        if (!this.isAuthenticated) {
-          alert("Por favor, inicia sesión para agregar una reseña.");
-          return;
+        if (this.editMode) {
+          // Actualizar reseña
+          await axios.put(
+            `http://localhost:5000/tienda/reseñas/${this.reseñaEditandoId}`,
+            {
+              calificacion: this.calificacion,
+              texto_resena: this.texto_resena,
+            }
+          );
+          this.success = "Reseña actualizada con éxito.";
+        } else {
+          // Crear reseña
+          await axios.post("http://localhost:5000/tienda/reseñas/", {
+            id_producto: this.id_producto,
+            id_cliente: this.id_cliente,
+            calificacion: this.calificacion,
+            texto_resena: this.texto_resena,
+          });
+          this.success = "Reseña enviada con éxito.";
         }
-
-        if (!this.nuevaReseña.comentario.trim()) {
-          alert("El comentario no puede estar vacío.");
-          return;
-        }
-
-        this.nuevaReseña.id_cliente = this.obtenerClienteAutenticado();
-
-        await axios.post(
-          `http://localhost:5000/tienda/reseñas`,
-          { ...this.nuevaReseña, id_producto: this.idProducto },
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-            },
-          }
-        );
-
-        alert("Reseña agregada con éxito.");
-        this.nuevaReseña = { comentario: "", calificacion: 1 };
-        this.cargarReseñas();
-      } catch (error) {
-        console.error("Error al agregar la reseña:", error);
-        alert(
-          error.response?.data?.message || "Hubo un error al agregar la reseña."
-        );
+        this.error = "";
+        this.resetFormulario();
+        this.obtenerReseñas();
+      } catch (err) {
+        this.error = err.response?.data?.message || "Error al procesar la reseña.";
+        this.success = "";
       }
     },
-
-    // Simular obtención del cliente autenticado
-    obtenerClienteAutenticado() {
-      const id_cliente = 1; // Cambiar esto según tu lógica de autenticación
-      return id_cliente;
+    resetFormulario() {
+      this.editMode = false;
+      this.reseñaEditandoId = null;
+      this.calificacion = "";
+      this.texto_resena = "";
     },
-
-    // Redirigir al login
-    redirigirLogin() {
-      this.$router.push("/login");
+    editarResena(reseña) {
+      this.editMode = true;
+      this.reseñaEditandoId = reseña.id;
+      this.calificacion = reseña.calificacion;
+      this.texto_resena = reseña.texto_resena;
+    },
+    async eliminarResena(id) {
+      if (confirm("¿Seguro que deseas eliminar esta reseña?")) {
+        try {
+          await axios.delete(`http://localhost:5000/tienda/reseñas/${id}`);
+          this.success = "Reseña eliminada con éxito.";
+          this.obtenerReseñas();
+        } catch (err) {
+          this.error = err.response?.data?.message || "Error al eliminar la reseña.";
+        }
+      }
     },
   },
-  created() {
-    this.verificarAutenticacion();
-    this.idProducto = this.$route.params.idProducto;
-    this.cargarReseñas();
+  mounted() {
+    this.obtenerReseñas();
   },
 };
 </script>
 
-
-<style scoped>
-.reseñas-productos {
-  max-width: 800px;
-  margin: auto;
+<style>
+.reseñas-container {
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto;
   padding: 20px;
-  background: #f9f9f9;
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  font-family: "Arial", sans-serif;
+  color: #333;
 }
 
-.boton-volver {
-  display: inline-block;
+.header {
+  text-align: center;
   margin-bottom: 20px;
-  padding: 10px 20px;
-  background-color: #007bff;
-  color: #fff;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
 }
 
-.boton-volver:hover {
-  background-color: #0056b3;
+.header h1 {
+  font-size: 2.5rem;
+  font-weight: bold;
 }
 
-.spinner {
-  border: 4px solid rgba(0, 0, 0, 0.1);
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border-left-color: #007bff;
-  animation: spin 1s linear infinite;
-  margin: 20px auto;
+.breadcrumb {
+  font-size: 0.9rem;
+  color: #555;
 }
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+.reseñas-list {
+  background: #f9f9f9;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 30px;
 }
 
 .reseña-item {
-  padding: 15px;
   border-bottom: 1px solid #ddd;
-  margin-bottom: 15px;
+  padding: 10px 0;
 }
 
-.reseña-item:last-child {
-  border-bottom: none;
+.reseña-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nombre-cliente {
+  font-weight: bold;
+  font-size: 1.2rem;
 }
 
 .calificacion {
-  font-weight: bold;
-  color: #28a745;
-}
-
-.form-reseña {
-  margin-top: 20px;
-  padding: 15px;
-  background: #fff;
-  border-radius: 10px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.form-reseña label {
-  display: block;
-  margin-bottom: 5px;
+  color: #f5c518;
   font-weight: bold;
 }
 
-.form-reseña textarea,
-.form-reseña select {
+.acciones button {
+  margin-right: 10px;
+}
+
+.reseña-form {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.input, .textarea {
   width: 100%;
   padding: 10px;
-  margin-bottom: 10px;
+  margin-top: 5px;
   border: 1px solid #ccc;
   border-radius: 5px;
 }
 
-.boton-enviar {
+.btn-submit {
+  background-color: #007bff;
+  color: white;
   padding: 10px 20px;
-  background-color: #28a745;
-  color: #fff;
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  font-size: 1rem;
 }
 
-.boton-enviar:hover {
-  background-color: #1e7e34;
+.btn-submit:hover {
+  background-color: #0056b3;
+}
+
+.btn-cancelar {
+  background: none;
+  border: 1px solid #ccc;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  color: #555;
+  margin-left: 10px;
+}
+
+.btn-cancelar:hover {
+  border-color: #888;
+}
+
+.message {
+  margin-top: 15px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.success {
+  color: green;
+}
+
+.error {
+  color: red;
 }
 </style>

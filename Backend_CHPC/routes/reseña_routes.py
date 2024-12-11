@@ -1,114 +1,101 @@
 from flask import Blueprint, jsonify, request
-from marshmallow import ValidationError
-from schemas.reseña_schema import reseña_schema, reseñas_schema
 from models import db, Reseña, Producto, Usuario
-from datetime import datetime
 
-reseña_routes = Blueprint('reseñas', __name__, url_prefix='/tienda/reseñas')
-
-# Obtener todas las reseñas o filtrar por ID del producto
-@reseña_routes.route('/', methods=['GET'])
-def obtener_reseñas():
-    try:
-        id_producto = request.args.get('producto', type=int)  # Parámetro opcional
-
-        if id_producto:
-            reseñas = Reseña.query.filter_by(id_producto=id_producto).all()
-        else:
-            reseñas = Reseña.query.all()
-
-        return jsonify(reseñas_schema.dump(reseñas)), 200
-    except Exception as e:
-        return jsonify({"error": "Error al obtener las reseñas", "details": str(e)}), 500
-
-
-# Obtener una reseña específica por ID
-@reseña_routes.route('/<int:id>', methods=['GET'])
-def obtener_reseña_por_id(id):
-    try:
-        reseña = Reseña.query.get_or_404(id)
-        return jsonify(reseña_schema.dump(reseña)), 200
-    except Exception as e:
-        return jsonify({"error": "Error al obtener la reseña", "details": str(e)}), 500
-
+bp = Blueprint('reseñas', __name__, url_prefix='/tienda/reseñas')
 
 # Crear una nueva reseña
-@reseña_routes.route('/', methods=['POST'])
-def crear_reseña():
+@bp.route('/', methods=['POST'])
+def crear_resena():
     try:
-        datos = request.json
+        data = request.get_json()
 
-        # Validar datos enviados
-        if not datos:
-            return jsonify({"error": "No se proporcionaron datos"}), 400
+        id_producto = data.get('id_producto')
+        id_cliente = data.get('id_cliente')
+        calificacion = data.get('calificacion')
+        texto_resena = data.get('texto_resena')
 
-        # Validar entrada con el esquema
-        datos_validados = reseña_schema.load(datos)
+        # Validaciones básicas
+        if not id_producto or not id_cliente or not calificacion:
+            return jsonify({"error": "Faltan campos obligatorios"}), 400
 
-        # Verificar si el producto y cliente existen
-        producto = Producto.query.get(datos_validados.get('id_producto'))
-        cliente = Usuario.query.get(datos_validados.get('id_cliente'))
-
+        # Verificar que el producto existe
+        producto = Producto.query.get(id_producto)
         if not producto:
-            return jsonify({"error": "El producto especificado no existe."}), 404
+            return jsonify({"error": "Producto no encontrado"}), 404
+
+        # Verificar que el usuario existe
+        cliente = Usuario.query.get(id_cliente)
         if not cliente:
-            return jsonify({"error": "El cliente especificado no existe."}), 404
+            return jsonify({"error": "Usuario no encontrado"}), 404
 
-        # Crear la nueva reseña
-        nueva_reseña = Reseña(
-            id_producto=datos_validados['id_producto'],
-            id_cliente=datos_validados['id_cliente'],
-            calificacion=datos_validados['calificacion'],
-            texto_resena=datos_validados.get('texto_resena', None),
-            fecha_resena=datetime.utcnow()
+        # Crear y guardar la reseña
+        nueva_resena = Reseña(
+            id_producto=id_producto,
+            id_cliente=id_cliente,
+            calificacion=calificacion,
+            texto_resena=texto_resena
         )
-        db.session.add(nueva_reseña)
+        db.session.add(nueva_resena)
         db.session.commit()
 
-        return jsonify(reseña_schema.dump(nueva_reseña)), 201
-    except ValidationError as ve:
-        return jsonify({"error": "Errores de validación", "details": ve.messages}), 400
+        return jsonify({"message": "Reseña creada con éxito"}), 201
     except Exception as e:
-        db.session.rollback()
-        return jsonify({"error": "Error al crear la reseña", "details": str(e)}), 500
+        return jsonify({"error": str(e)}), 500
 
-
-# Actualizar una reseña existente
-@reseña_routes.route('/<int:id>', methods=['PUT'])
-def actualizar_reseña(id):
+# Obtener todas las reseñas de un producto
+@bp.route('/producto/<int:id_producto>', methods=['GET'])
+def obtener_resenas_producto(id_producto):
     try:
-        datos = request.json
+        reseñas = Reseña.query.filter_by(id_producto=id_producto).all()
+        if not reseñas:
+            return jsonify({"message": "No se encontraron reseñas para este producto"}), 404
 
-        if not datos:
-            return jsonify({"error": "No se proporcionaron datos para actualizar"}), 400
+        reseñas_data = [
+            {
+                "id": reseña.id,
+                "calificacion": reseña.calificacion,
+                "texto_resena": reseña.texto_resena,
+                "fecha_resena": reseña.fecha_resena.isoformat(),
+                "cliente": {
+                    "id": reseña.id_cliente,
+                    "nombre_usuario": reseña.cliente.nombre_usuario if reseña.cliente else "Anónimo"
+                }
+            }
+            for reseña in reseñas
+        ]
 
+        return jsonify(reseñas_data), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# Editar una reseña
+@bp.route('/<int:id>', methods=['PUT'])
+def editar_resena(id):
+    try:
         reseña = Reseña.query.get_or_404(id)
+        data = request.get_json()
 
-        # Validar entrada con el esquema (permitir parcial)
-        datos_validados = reseña_schema.load(datos, partial=True)
+        calificacion = data.get('calificacion')
+        texto_resena = data.get('texto_resena')
 
-        # Actualizar campos
-        reseña.calificacion = datos_validados.get('calificacion', reseña.calificacion)
-        reseña.texto_resena = datos_validados.get('texto_resena', reseña.texto_resena)
-        reseña.fecha_resena = datetime.utcnow()
+        if calificacion is not None:
+            reseña.calificacion = calificacion
+        if texto_resena is not None:
+            reseña.texto_resena = texto_resena
 
         db.session.commit()
-        return jsonify(reseña_schema.dump(reseña)), 200
-    except ValidationError as ve:
-        return jsonify({"error": "Errores de validación", "details": ve.messages}), 400
+        return jsonify({"message": "Reseña actualizada con éxito"}), 200
     except Exception as e:
-        db.session.rollback()
-        return jsonify({"error": "Error al actualizar la reseña", "details": str(e)}), 500
-
+        return jsonify({"error": str(e)}), 500
 
 # Eliminar una reseña
-@reseña_routes.route('/<int:id>', methods=['DELETE'])
-def eliminar_reseña(id):
+@bp.route('/<int:id>', methods=['DELETE'])
+def eliminar_resena(id):
     try:
         reseña = Reseña.query.get_or_404(id)
         db.session.delete(reseña)
         db.session.commit()
-        return jsonify({"message": "Reseña eliminada exitosamente"}), 200
+
+        return jsonify({"message": "Reseña eliminada con éxito"}), 200
     except Exception as e:
-        db.session.rollback()
-        return jsonify({"error": "Error al eliminar la reseña", "details": str(e)}), 500
+        return jsonify({"error": str(e)}), 500

@@ -3,7 +3,7 @@ from models import db, Producto, Media, Reseña
 
 bp = Blueprint('productos', __name__, url_prefix='/tienda/productos')
 
-# Obtener todos los productos junto con sus imágenes y reseñas
+# Obtener todos los productos junto con sus imágenes, reseñas, categoría y marca
 @bp.route('/', methods=['GET'])
 def obtener_productos():
     try:
@@ -33,7 +33,7 @@ def obtener_productos():
                     "texto_resena": reseña.texto_resena,
                     "fecha_resena": reseña.fecha_resena.isoformat(),
                     "cliente": {
-                        "id": reseña.id_cliente,  # O más detalles si son accesibles
+                        "id": reseña.id_cliente,
                         "nombre_usuario": reseña.cliente.nombre_usuario if reseña.cliente else "Anónimo"
                     }
                 }
@@ -50,10 +50,19 @@ def obtener_productos():
                 "peso": str(producto.peso),
                 "color": producto.color,
                 "volumen": str(producto.volumen) if producto.volumen else None,
-                "id_categoria": producto.id_categoria,
-                "id_marca": producto.id_marca,
+                "categoria": {
+                    "id": producto.categoria.id,
+                    "nombre_categoria": producto.categoria.nombre_categoria,
+                    "descripcion": producto.categoria.descripcion
+                } if producto.categoria else None,
+                "marca": {
+                    "id": producto.marca.id,
+                    "nombre_marca": producto.marca.nombre_marca,
+                    "descripcion": producto.marca.descripcion,
+                    "sitio_web": producto.marca.sitio_web
+                } if producto.marca else None,
                 "media": media_data,
-                "reseñas": reseñas_data  # Agregar las reseñas asociadas
+                "reseñas": reseñas_data
             }
             productos_data.append(producto_dict)
 
@@ -62,7 +71,6 @@ def obtener_productos():
         return jsonify({"error": str(e)}), 500
 
 
-# Obtener un producto específico por ID junto con sus imágenes y reseñas
 @bp.route('/<int:id>', methods=['GET'])
 def obtener_producto(id):
     try:
@@ -90,14 +98,14 @@ def obtener_producto(id):
                 "texto_resena": reseña.texto_resena,
                 "fecha_resena": reseña.fecha_resena.isoformat(),
                 "cliente": {
-                    "id": reseña.id_cliente,  # O más detalles si son accesibles
+                    "id": reseña.id_cliente,
                     "nombre_usuario": reseña.cliente.nombre_usuario if reseña.cliente else "Anónimo"
                 }
             }
             for reseña in reseñas_producto
         ]
 
-        # Construir el diccionario del producto
+        # Construir el diccionario del producto con relaciones
         producto_dict = {
             "id": producto.id,
             "nombre_producto": producto.nombre_producto,
@@ -107,10 +115,19 @@ def obtener_producto(id):
             "peso": str(producto.peso),
             "color": producto.color,
             "volumen": str(producto.volumen) if producto.volumen else None,
-            "id_categoria": producto.id_categoria,
-            "id_marca": producto.id_marca,
+            "categoria": {
+                "id": producto.categoria.id,
+                "nombre_categoria": producto.categoria.nombre_categoria,
+                "descripcion": producto.categoria.descripcion
+            } if producto.categoria else None,
+            "marca": {
+                "id": producto.marca.id,
+                "nombre_marca": producto.marca.nombre_marca,
+                "descripcion": producto.marca.descripcion,
+                "sitio_web": producto.marca.sitio_web
+            } if producto.marca else None,
             "media": media_data,
-            "reseñas": reseñas_data  # Agregar las reseñas asociadas
+            "reseñas": reseñas_data
         }
 
         return jsonify(producto_dict), 200
