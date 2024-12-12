@@ -1,3 +1,5 @@
+//CODIGO CORTECIA DE:ANTHONY JOEL MOREIRAA CATAGUA Y CHATGPT GOD
+
 <template>
   <div>
     <!-- Encabezado -->
@@ -16,7 +18,7 @@
     <div>
       <CarouselBanner :banners="banners" />
     </div>
-      <h1>Bienvenidos a Nuestra Tienda</h1>
+      <h1>Bienvenidos a Nuestra Tienda </h1>
       <p>Explora nuestros productos y encuentra lo que necesitas.</p>
 
       <!-- Lista de Productos -->
