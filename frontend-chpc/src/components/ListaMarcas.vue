@@ -11,7 +11,12 @@
         Aquí encontrarás las mejores marcas para tus necesidades. ¡Haz clic y conoce más!
       </p>
       <div class="marca-grid">
-        <div v-for="marca in marcas" :key="marca.id" class="marca-card">
+        <div 
+          v-for="marca in marcas" 
+          :key="marca.id" 
+          class="marca-card"
+          @click="filtrarPorMarca(marca.id)"
+        >
           <img
             :src="marca.imagen_url"
             :alt="'Logo de la marca ' + marca.nombre_marca"
@@ -63,6 +68,9 @@ export default {
       localStorage.removeItem("access_token");
       this.isAuthenticated = false;
       this.$router.replace("/login");
+    },
+    filtrarPorMarca(marcaId) {
+      this.$router.push({ path: "/", query: { marca: marcaId } });
     },
   },
 };

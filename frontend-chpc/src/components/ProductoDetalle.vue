@@ -281,27 +281,6 @@ export default {
   background-color: #ffc107; /* Color de botón amarillo */
   transition: background-color 0.3s ease, transform 0.2s ease;
 }
-.video-miniatura {
-  width: 90px;
-  height: 90px;
-  object-fit: cover;
-  border: 2px solid transparent;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: transform 0.3s ease, border-color 0.3s ease;
-}
-
-.video-miniatura:hover {
-  transform: scale(1.2);
-  border-color: #007bff;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-}
-
-.video-grande {
-  max-width: 100%;
-  max-height: 500px;
-  border-radius: 15px;
-}
 
 
 .boton-reseña:hover {
@@ -310,7 +289,7 @@ export default {
 }
 
 
-/* Galería de imágenes */
+
 .galeria-imagenes {
   flex: 1.5;
   display: flex;
@@ -325,8 +304,8 @@ export default {
 }
 
 .imagen-miniatura {
-  width: 90px;
-  height: 90px;
+  width: 100px; /* Ajustado para parecerse a miniaturas de Amazon */
+  height: 100px;
   object-fit: cover;
   border: 2px solid transparent;
   border-radius: 8px;
@@ -347,8 +326,8 @@ export default {
 }
 
 .imagen-principal .imagen-grande {
-  max-width: 100%;
-  max-height: 500px;
+  width: 100%; /* Ajuste automático al contenedor */
+  max-height: 600px; /* Altura máxima similar a Amazon */
   object-fit: contain;
   border-radius: 15px;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -357,6 +336,36 @@ export default {
 .imagen-principal .imagen-grande:hover {
   transform: scale(1.05); /* Incrementar tamaño */
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Videos */
+.video-grande {
+  width: 100%; /* Ajuste automático */
+  max-height: 600px; /* Altura máxima */
+  object-fit: contain;
+  border-radius: 15px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.video-grande:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+}
+
+.video-miniatura {
+  width: 100px; /* Similar a las imágenes */
+  height: 100px;
+  object-fit: cover;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.video-miniatura:hover {
+  transform: scale(1.2);
+  border-color: #007bff;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
 

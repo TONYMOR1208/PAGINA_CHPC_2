@@ -7,7 +7,24 @@ bp = Blueprint('productos', __name__, url_prefix='/tienda/productos')
 @bp.route('/', methods=['GET'])
 def obtener_productos():
     try:
-        productos = Producto.query.all()
+        marca_id = request.args.get('marca')
+        search_query = request.args.get('search', '').strip()  # Obtener el parámetro de búsqueda
+
+        # Filtrar productos por marca y/o búsqueda en nombre y descripción
+        query = Producto.query
+        if marca_id:
+            query = query.filter(Producto.id_marca == marca_id)
+        if search_query:
+            # Buscar en nombre y descripción
+            query = query.filter(
+                db.or_(
+                    Producto.nombre_producto.ilike(f"%{search_query}%"),
+                    Producto.descripcion.ilike(f"%{search_query}%")
+                )
+            )
+
+        productos = query.all()
+
         productos_data = []
 
         for producto in productos:

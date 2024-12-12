@@ -1,12 +1,12 @@
 <template>
   <div>
+    <!-- Encabezado -->
     <HeaderAnth
-  :searchQuery="searchQuery"
-  :isAuthenticated="isAuthenticated"
-  @buscar="buscarProductos"
-  @cerrar-sesion="cerrarSesion"
-/>
-
+      :searchQuery="searchQuery"
+      :isAuthenticated="isAuthenticated"
+      @buscar="buscarProductos"
+      @cerrar-sesion="cerrarSesion"
+    />
 
     <!-- Carrusel de Banners -->
     <div v-if="banners.length > 0" class="carousel">
@@ -28,8 +28,6 @@
           :class="{ active: index === activeBanner }"
           @click="activeBanner = index"
         ></span>
-
-       
       </div>
     </div>
 
@@ -37,6 +35,8 @@
     <div class="home-container">
       <h1>Bienvenidos a Nuestra Tienda</h1>
       <p>Explora nuestros productos y encuentra lo que necesitas.</p>
+
+      <!-- Lista de Productos -->
       <div class="product-grid">
         <div
           v-for="producto in productosMostrados"
@@ -59,19 +59,25 @@
             Inicia Sesión para Ver Precios
           </button>
         </div>
-        
       </div>
 
       <!-- Botón para cargar más productos -->
       <button
-        v-if="productosMostrados.length < productos.length"
+        v-if="productosMostrados.length < productos.length && searchQuery.trim() === ''"
         @click="cargarMasProductos"
         class="cargar-mas"
       >
         Cargar más productos
       </button>
+
+      <!-- Mensaje de No Resultados -->
+      <div v-if="productosMostrados.length === 0 && searchQuery.trim() !== ''">
+        <p>No se encontraron productos que coincidan con "{{ searchQuery }}".</p>
+      </div>
     </div>
-    <FooterAnth /> 
+
+    <!-- Pie de página -->
+    <FooterAnth />
   </div>
 </template>
 
@@ -102,15 +108,13 @@ export default {
     this.isAuthenticated = !!localStorage.getItem("access_token");
 
     try {
+      // Cargar Banners
       const bannersResponse = await axios.get(
         "http://localhost:5000/tienda/banners"
       );
       this.banners = bannersResponse.data.data;
-    } catch (error) {
-      console.error("Error al cargar los banners:", error);
-    }
 
-    try {
+      // Cargar Productos
       const productosResponse = await axios.get(
         "http://localhost:5000/tienda/productos"
       );
@@ -123,10 +127,10 @@ export default {
       }));
       this.cargarMasProductos();
     } catch (error) {
-      console.error("Error al cargar los productos:", error);
+      console.error("Error al cargar los datos:", error);
     }
 
-    // Procesa el parámetro de búsqueda al cargar la página
+    // Procesar la búsqueda inicial (si existe)
     const search = this.$route.query.search;
     if (search) {
       this.buscarProductos(search);
@@ -140,28 +144,22 @@ export default {
   methods: {
     startCarousel() {
       this.intervalId = setInterval(() => {
-        this.activeBanner =
-          (this.activeBanner + 1) % this.banners.length;
+        this.activeBanner = (this.activeBanner + 1) % this.banners.length;
       }, 4000);
     },
     stopCarousel() {
       if (this.intervalId) clearInterval(this.intervalId);
     },
     cargarMasProductos() {
-  if (this.searchQuery.trim() !== "") {
-    // Si hay una búsqueda activa, no cargar más productos
-    console.warn("No se pueden cargar más productos durante la búsqueda.");
-    return;
-  }
+      if (this.searchQuery.trim() !== "") return; // No cargar más productos durante la búsqueda
 
-  const siguienteBloque = this.productos.slice(
-    this.productosMostrados.length,
-    this.productosMostrados.length + this.limiteProductos
-  );
+      const siguienteBloque = this.productos.slice(
+        this.productosMostrados.length,
+        this.productosMostrados.length + this.limiteProductos
+      );
 
-  this.productosMostrados = [...this.productosMostrados, ...siguienteBloque];
-},
-
+      this.productosMostrados = [...this.productosMostrados, ...siguienteBloque];
+    },
     getFullImageUrl(relativeUrl) {
       return `http://localhost:5000${relativeUrl}`;
     },
@@ -169,13 +167,19 @@ export default {
       this.$router.push({ name: "ProductoDetalle", params: { id } });
     },
     buscarProductos(query) {
-      this.searchQuery = query; // Actualiza el valor local del query
-      if (query.trim() !== "") {
-        this.productosMostrados = this.productos.filter((producto) =>
-          producto.nombre_producto.toLowerCase().includes(query.toLowerCase())
+      this.searchQuery = query.trim(); // Actualiza el valor local del query
+      if (this.searchQuery !== "") {
+        this.productosMostrados = this.productos.filter(
+          (producto) =>
+            producto.nombre_producto
+              .toLowerCase()
+              .includes(this.searchQuery.toLowerCase()) ||
+            producto.descripcion
+              .toLowerCase()
+              .includes(this.searchQuery.toLowerCase())
         );
       } else {
-        this.productosMostrados = this.productos.slice(0, this.limiteProductos); // Muestra productos iniciales si no hay búsqueda
+        this.productosMostrados = this.productos.slice(0, this.limiteProductos);
       }
     },
     cerrarSesion() {
@@ -189,6 +193,7 @@ export default {
   },
 };
 </script>
+
 
 
 <style >
