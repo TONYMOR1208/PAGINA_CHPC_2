@@ -78,10 +78,10 @@ export default {
 
 <style>
 body {
-  background-color: #f9fafb;
+  background-color: #f5f5f5; /* Gris claro */
   margin: 0;
   padding: 0;
-  font-family: Arial, sans-serif;
+  font-family: 'Roboto', sans-serif; /* Tipografía uniforme */
 }
 
 .marcas-container {
@@ -92,13 +92,13 @@ body {
 
 .main-title {
   font-size: 32px;
-  color: #333;
+  color: #333; /* Color de texto principal */
   margin-bottom: 10px;
 }
 
 .description {
   font-size: 18px;
-  color: #555;
+  color: #555; /* Color de texto secundario */
   margin-bottom: 30px;
 }
 
@@ -122,8 +122,8 @@ body {
 }
 
 .marca-card {
-  background-color: #ffffff;
-  border: 1px solid #e0e0e0;
+  background-color: #ffffff; /* Fondo blanco */
+  border: 1px solid #ddd; /* Tonalidad gris suave */
   border-radius: 10px;
   padding: 20px;
   box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1);
@@ -146,8 +146,9 @@ body {
 
 .marca-card h3 {
   font-size: 18px;
-  color: #333;
+  color: #333; /* Color de texto principal */
   margin: 10px 0;
   text-transform: capitalize;
 }
+
 </style>

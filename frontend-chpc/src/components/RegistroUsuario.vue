@@ -174,12 +174,12 @@ export default {
 };
 </script>
 
-<style >
+<style>
 .register-container {
   max-width: 480px;
   margin: 50px auto;
   padding: 30px;
-  background-color: #ffffff;
+  background-color: #ffffff; /* Blanco */
   border-radius: 10px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   font-family: 'Roboto', sans-serif;
@@ -187,7 +187,7 @@ export default {
 
 .register-container h2 {
   text-align: center;
-  color: #333333;
+  color: #ffa726; /* Naranja */
   font-size: 24px;
   margin-bottom: 10px;
 }
@@ -195,7 +195,7 @@ export default {
 .register-container p {
   text-align: center;
   font-size: 14px;
-  color: #666666;
+  color: #666666; /* Gris */
 }
 
 .input-group {
@@ -204,7 +204,7 @@ export default {
 
 .input-group label {
   font-size: 14px;
-  color: #555555;
+  color: #555555; /* Gris oscuro */
   margin-bottom: 5px;
   display: block;
   font-weight: 500;
@@ -220,7 +220,7 @@ export default {
 }
 
 .input-group input:focus {
-  border-color: #007bff;
+  border-color: #ffa726; /* Naranja */
   outline: none;
 }
 
@@ -234,42 +234,43 @@ export default {
   right: 10px;
   transform: translateY(-50%);
   font-size: 18px;
-  color: #007bff;
+  color: #ffa726; /* Naranja */
   cursor: pointer;
   transition: color 0.3s;
 }
 
 .toggle-password:hover {
-  color: #0056b3;
+  color: #fb8c00; /* Naranja más oscuro */
 }
 
 .register-button {
   width: 100%;
   padding: 14px;
-  background-color: #007bff;
-  color: white;
+  background-color: #1c1c1c; /* Negro */
+  color: #ffffff; /* Blanco */
   border: none;
   border-radius: 6px;
   cursor: pointer;
   font-size: 16px;
   font-weight: bold;
   margin-top: 20px;
-  transition: background-color 0.3s;
+  transition: background-color 0.3s, color 0.3s;
 }
 
 .register-button:hover {
-  background-color: #0056b3;
+  background-color: #ffa726; /* Naranja */
+  color: #1c1c1c; /* Negro */
 }
 
 .error {
-  color: #dc3545;
+  color: #e53935; /* Rojo para errores */
   font-size: 14px;
   text-align: left;
   margin-top: 5px;
 }
 
 .success {
-  color: #28a745;
+  color: #28a745; /* Verde para éxito */
   text-align: center;
   font-weight: bold;
   font-size: 16px;
@@ -280,15 +281,16 @@ export default {
   margin-top: 15px;
   text-align: center;
   font-size: 14px;
-  color: #666666;
+  color: #666666; /* Gris */
 }
 
 .account-info a {
-  color: #007bff;
+  color: #ffa726; /* Naranja */
   text-decoration: none;
 }
 
 .account-info a:hover {
+  color: #fb8c00; /* Naranja más oscuro */
   text-decoration: underline;
 }
 </style>

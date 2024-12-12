@@ -4,8 +4,10 @@ import RegistroUsuario from '../components/RegistroUsuario.vue';
 import Home from '../components/Home.vue'; // Cambié '@/' a '../'
 import ProductoDetalle from '../components/ProductoDetalle.vue';
 import ListaMarcas from '@/components/ListaMarcas.vue';
-import ReseñasProductos from '../components/ReseñasProductos.vue';
+import CarouselBanner from '@/components/CarouselBanner.vue';
+
 import RedesSociales from '@/components/RedesSociales.vue';
+import ServicioTecnico from '@/components/ServicioTecnico.vue';
 
 const routes = [
   { path: '/', redirect: '/home' },
@@ -43,11 +45,7 @@ const routes = [
     component: ProductoDetalle, 
     name: 'ProductoDetalle' 
   },
-  { 
-    path: '/producto/:id/reseñas', 
-    component: ReseñasProductos, 
-    name: 'ReseñasProductos' 
-  },
+
   { 
     path: '/marcas', 
     component: ListaMarcas, // Usar el nuevo nombre del componente
@@ -58,6 +56,18 @@ const routes = [
     component: RedesSociales,
     name: 'RedesSociales'
   },
+  {
+    path : '/servicio-tecnico',
+    component: ServicioTecnico,
+    name: 'ServicioTecnico'
+  },
+  {
+    path: '/carousel-banner',
+    component: CarouselBanner,
+    name: 'CarouselBanner'  
+  }
+
+
 ];
 
 const router = createRouter({

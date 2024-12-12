@@ -116,10 +116,10 @@
       </div>
 
       <div class="botones-accion">
-        <button class="boton-compra">Comprar ahora</button>
-        <button class="boton-carrito">Añadir al carrito</button>
-        <button class="boton-reseña" @click="redirigirAgregarReseña">Agregar Reseña</button>
-      </div>
+  <a href="https://wa.me/593995924867" target="_blank" class="boton-compra">Comprar ahora</a>
+ 
+</div>
+
     </div>
   </div>
 </div>
@@ -222,8 +222,11 @@ export default {
     getFullImageUrl(relativeUrl) {
       return `http://localhost:5000${relativeUrl}`;
     },
-    redirigirAgregarReseña() {
-      this.$router.push({ name: "ReseñasProductos", params: { id: this.$route.params.id } });
+    cerrarSesion() {
+      // Elimina el token y actualiza el estado de autenticación
+      localStorage.removeItem("access_token");
+      this.isAuthenticated = false;
+      this.$router.push("/login"); // Redirige al usuario al login
     },
     redirigirLogin() {
       this.$router.push("/login");
@@ -240,9 +243,8 @@ export default {
 </script>
 
 
-
 <style scoped>
-/* Contenedor principal */
+/* ================= Contenedor Principal ================= */
 .producto-contenedor {
   display: flex;
   flex-direction: column;
@@ -255,7 +257,7 @@ export default {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
-/* Sección de detalles */
+/* ================= Sección de Detalles ================= */
 .detalle-contenedor {
   display: flex;
   gap: 30px;
@@ -268,8 +270,10 @@ export default {
 }
 
 .detalle-contenedor:hover {
-  transform: scale(1.02); /* Ampliación suave */
+  transform: scale(1.02);
 }
+
+/* Botón de Reseñas */
 .boton-reseña {
   padding: 12px 20px;
   font-size: 18px;
@@ -278,18 +282,16 @@ export default {
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  background-color: #ffc107; /* Color de botón amarillo */
+  background-color: #ffc107;
   transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
-
 .boton-reseña:hover {
-  background-color: #e0a800; /* Cambio de color al pasar el cursor */
+  background-color: #e0a800;
   transform: translateY(-2px);
 }
 
-
-
+/* ================= Galería de Imágenes ================= */
 .galeria-imagenes {
   flex: 1.5;
   display: flex;
@@ -304,7 +306,7 @@ export default {
 }
 
 .imagen-miniatura {
-  width: 100px; /* Ajustado para parecerse a miniaturas de Amazon */
+  width: 100px;
   height: 100px;
   object-fit: cover;
   border: 2px solid transparent;
@@ -314,7 +316,7 @@ export default {
 }
 
 .imagen-miniatura:hover {
-  transform: scale(1.2); /* Incrementar tamaño */
+  transform: scale(1.2);
   border-color: #007bff;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
@@ -326,22 +328,22 @@ export default {
 }
 
 .imagen-principal .imagen-grande {
-  width: 100%; /* Ajuste automático al contenedor */
-  max-height: 600px; /* Altura máxima similar a Amazon */
+  width: 100%;
+  max-height: 600px;
   object-fit: contain;
   border-radius: 15px;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .imagen-principal .imagen-grande:hover {
-  transform: scale(1.05); /* Incrementar tamaño */
+  transform: scale(1.05);
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
 }
 
-/* Videos */
+/* ================= Videos ================= */
 .video-grande {
-  width: 100%; /* Ajuste automático */
-  max-height: 600px; /* Altura máxima */
+  width: 100%;
+  max-height: 600px;
   object-fit: contain;
   border-radius: 15px;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -353,7 +355,7 @@ export default {
 }
 
 .video-miniatura {
-  width: 100px; /* Similar a las imágenes */
+  width: 100px;
   height: 100px;
   object-fit: cover;
   border: 2px solid transparent;
@@ -368,21 +370,21 @@ export default {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
-
-/* Información del producto */
+/* ================= Información del Producto ================= */
 .informacion-producto {
   flex: 1;
   padding: 25px;
-  background-color: #fefefe;
-  border: 1px solid #e0e0e0;
+  background-color: #1c1c1c; /* Fondo negro */
+  border: 1px solid #333333; /* Bordes oscuros */
   border-radius: 15px;
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+  color: #f5f5f5; /* Texto blanco suave */
 }
 
 .nombre-producto {
   font-size: 30px;
   font-weight: bold;
-  color: #333;
+  color: #ffa726; /* Naranja */
   margin-bottom: 15px;
 }
 
@@ -396,22 +398,22 @@ export default {
 .precio-descuento {
   font-size: 26px;
   font-weight: bold;
-  color: #28a745;
+  color: #ffa726; /* Naranja */
 }
 
 .precio-original {
   font-size: 20px;
-  color: #dc3545;
+  color: #dc3545; /* Rojo */
   text-decoration: line-through;
 }
 
 .stock-producto {
   font-size: 18px;
-  color: #555;
+  color: #f5f5f5; /* Blanco suave */
   margin-bottom: 20px;
 }
 
-/* Descripción */
+/* ================= Descripción del Producto ================= */
 .descripcion-producto ul {
   list-style: none;
   padding-left: 0;
@@ -421,13 +423,14 @@ export default {
   margin-bottom: 10px;
   font-size: 16px;
   line-height: 1.5;
+  color: #f5f5f5; /* Blanco suave */
 }
 
 .descripcion-producto strong {
-  color: #333;
+  color: #ffa726; /* Naranja */
 }
 
-/* Botones de acción */
+/* ================= Botones de Acción ================= */
 .botones-accion {
   display: flex;
   gap: 15px;
@@ -439,7 +442,7 @@ export default {
   padding: 12px 20px;
   font-size: 18px;
   font-weight: bold;
-  color: #fff;
+  color: #1c1c1c; /* Texto negro */
   border: none;
   border-radius: 8px;
   cursor: pointer;
@@ -447,22 +450,23 @@ export default {
 }
 
 .boton-compra {
-  background-color: #007bff;
+  background-color: #ffa726; /* Naranja */
 }
 
 .boton-compra:hover {
-  background-color: #0056b3;
+  background-color: #fb8c00; /* Naranja más oscuro */
   transform: translateY(-2px);
 }
 
 .boton-carrito {
-  background-color: #28a745;
+  background-color: #ffa726; /* Naranja */
 }
 
 .boton-carrito:hover {
-  background-color: #1e7e34;
+  background-color: #fb8c00; /* Naranja más oscuro */
   transform: translateY(-2px);
 }
+
 
 </style>
 

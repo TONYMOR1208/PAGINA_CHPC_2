@@ -31,7 +31,8 @@
     </div>
     <nav class="main-menu">
       <ul>
-        <li><a href="#">Computo</a></li>
+        <li><a href="/home">Inicio</a></li>
+        <li><a href="/servicio-tecnico">Servicio Tecnico</a></li>
         <li><a href="/redes-sociales">Redes Sociales</a></li>
         <li><a href="/marcas">Marcas</a></li>
       </ul>
@@ -83,14 +84,14 @@ export default {
 <style scoped>
 /* Estilos relacionados con el header */
 .header {
-  font-family: Arial, sans-serif;
+  font-family: 'Roboto', sans-serif;
 }
 
 .main-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #FFFFFF;
+  background-color: #ffff; /* Negro en lugar de blanco */
   padding: 10px 20px;
 }
 
@@ -101,19 +102,32 @@ export default {
   border-radius: 5px;
 }
 
+.search-bar {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  margin: 0 20px;
+}
+
 .search-bar input {
   width: 100%;
   padding: 10px;
-  border: 1px solid #ccc;
+  border: 1px solid #ddd; /* Tonalidad gris suave */
   border-radius: 5px 0 0 5px;
 }
 
 .search-bar button {
   padding: 10px 20px;
-  background-color: #ff8c00;
+  background-color: #ffa726; /* Naranja suave */
   border: none;
   color: white;
   border-radius: 0 5px 5px 0;
   cursor: pointer;
+  transition: background 0.3s ease;
 }
+
+.search-bar button:hover {
+  background-color: #fb8c00; /* Tonalidad más oscura */
+}
+
 </style>

@@ -8,31 +8,14 @@
       @cerrar-sesion="cerrarSesion"
     />
 
-    <!-- Carrusel de Banners -->
-    <div v-if="banners.length > 0" class="carousel">
-      <div
-        v-for="(banner, index) in banners"
-        :key="banner.id"
-        :class="['carousel-item', { active: index === activeBanner }]"
-      >
-        <img
-          :src="getFullImageUrl(banner.imagen_url)"
-          :alt="banner.titulo"
-          class="banner-image"
-        />
-      </div>
-      <div class="carousel-indicators">
-        <span
-          v-for="(banner, index) in banners"
-          :key="`indicator-${index}`"
-          :class="{ active: index === activeBanner }"
-          @click="activeBanner = index"
-        ></span>
-      </div>
-    </div>
+
 
     <!-- Contenido principal -->
     <div class="home-container">
+          <!-- Carrusel de Banners -->
+    <div>
+      <CarouselBanner :banners="banners" />
+    </div>
       <h1>Bienvenidos a Nuestra Tienda</h1>
       <p>Explora nuestros productos y encuentra lo que necesitas.</p>
 
@@ -85,23 +68,23 @@
 import axios from "axios";
 import HeaderAnth from "@/components/HeaderAnth.vue";
 import FooterAnth from "@/components/FooterAnth.vue";
+import CarouselBanner from "@/components/CarouselBanner.vue";
 
 export default {
   name: "HomePage",
   components: {
     HeaderAnth,
+    CarouselBanner,
     FooterAnth,
   },
   data() {
     return {
       banners: [],
-      activeBanner: 0,
       productos: [],
       productosMostrados: [],
       searchQuery: "",
       isAuthenticated: false,
       limiteProductos: 10,
-      intervalId: null,
     };
   },
   async created() {
@@ -109,15 +92,11 @@ export default {
 
     try {
       // Cargar Banners
-      const bannersResponse = await axios.get(
-        "http://localhost:5000/tienda/banners"
-      );
+      const bannersResponse = await axios.get("http://localhost:5000/tienda/banners");
       this.banners = bannersResponse.data.data;
 
       // Cargar Productos
-      const productosResponse = await axios.get(
-        "http://localhost:5000/tienda/productos"
-      );
+      const productosResponse = await axios.get("http://localhost:5000/tienda/productos");
       this.productos = productosResponse.data.map((producto) => ({
         ...producto,
         imagen_url:
@@ -135,23 +114,10 @@ export default {
     if (search) {
       this.buscarProductos(search);
     }
-
-    this.startCarousel();
-  },
-  beforeUnmount() {
-    this.stopCarousel();
   },
   methods: {
-    startCarousel() {
-      this.intervalId = setInterval(() => {
-        this.activeBanner = (this.activeBanner + 1) % this.banners.length;
-      }, 4000);
-    },
-    stopCarousel() {
-      if (this.intervalId) clearInterval(this.intervalId);
-    },
     cargarMasProductos() {
-      if (this.searchQuery.trim() !== "") return; // No cargar más productos durante la búsqueda
+      if (this.searchQuery.trim() !== "") return;
 
       const siguienteBloque = this.productos.slice(
         this.productosMostrados.length,
@@ -160,14 +126,11 @@ export default {
 
       this.productosMostrados = [...this.productosMostrados, ...siguienteBloque];
     },
-    getFullImageUrl(relativeUrl) {
-      return `http://localhost:5000${relativeUrl}`;
-    },
     verDetalle(id) {
       this.$router.push({ name: "ProductoDetalle", params: { id } });
     },
     buscarProductos(query) {
-      this.searchQuery = query.trim(); // Actualiza el valor local del query
+      this.searchQuery = query.trim();
       if (this.searchQuery !== "") {
         this.productosMostrados = this.productos.filter(
           (producto) =>
@@ -194,19 +157,19 @@ export default {
 };
 </script>
 
-
-
 <style >
 /* Estilos del fondo principal */
 body {
   background-color: #f5f5f5; /* Fondo gris claro */
   margin: 0;
   padding: 0;
+  font-family: 'Roboto', sans-serif; /* Tipografía uniforme */
+  color: #333; /* Color de texto predeterminado */
 }
 
 /* Estilos del header */
 .header {
-  font-family: Arial, sans-serif;
+  font-family: 'Roboto', sans-serif;
 }
 
 .top-bar {
@@ -238,48 +201,17 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #0053a0;
+  background-color: #000;
   padding: 10px 20px;
 }
 
-.logo img {
-  width: 100px;
-  height: 50px;
-}
 
-.search-bar {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  margin: 0 20px;
-}
-
-.search-bar input {
-  width: 150px;
-  padding: 8px;
-  border: none;
-  border-radius: 5px 0 0 5px;
-}
-
-.search-bar button {
-  padding: 12px 14px;
-  background-color: #ff9900;
-  color: white;
-  border: none;
-  border-radius: 0 5px 5px 0;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-.search-bar button:hover {
-  background-color: #ff8c00;
-}
 
 .user-actions a,
 .user-actions button {
   margin-left: 15px;
   text-decoration: none;
-  color: rgb(229, 135, 19);
+  color: #edbd82; /* Naranja suave */
   font-weight: bold;
   background-color: transparent;
   border: none;
@@ -292,7 +224,7 @@ body {
 }
 
 .main-menu {
-  background-color: #003366;
+  background-color: #000; /* Negro en lugar de azul */
 }
 
 .main-menu ul {
@@ -311,26 +243,52 @@ body {
 .main-menu a {
   display: block;
   padding: 10px 0;
-  color: white;
+  color: #fff;
   text-decoration: none;
   font-size: 14px;
   font-weight: bold;
 }
 
 .main-menu a:hover {
-  background-color: #ff8c00;
+  background-color: #fb8c00; /* Tonalidad naranja */
 }
 
 /* Contenido principal */
 .home-container {
   text-align: center;
   margin: 30px;
+  animation: fadeInUp 1s ease-in-out;
+}
+
+/* Animación para el contenedor principal */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .product-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr); /* Máximo 4 columnas por fila */
   gap: 20px;
+  animation: slideIn 1s ease-in-out;
+}
+
+/* Animación para la cuadrícula de productos */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @media (max-width: 768px) {
@@ -355,6 +313,19 @@ body {
   text-align: center;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   position: relative;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Animación para cada tarjeta de producto */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .product-card:hover {
@@ -380,25 +351,29 @@ body {
 .product-card h3 {
   font-size: 18px;
   margin: 10px 0;
+  color: #333; /* Color de texto uniforme */
 }
 
 .product-card p {
   font-size: 14px;
-  color: #333;
+  color: #666; /* Tonalidad más suave */
 }
 
 .product-card button {
   padding: 10px 20px;
-  background-color: #ff9900;
+  background-color: #ffa726; /* Naranja suave */
   color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
 .product-card button:hover {
-  background-color: #ff8c00;
+  background-color: #fb8c00; /* Tonalidad más oscura */
+  transform: translateY(-3px);
 }
+
 
 /* Botón de carga progresiva */
 .cargar-mas {
@@ -407,66 +382,20 @@ body {
   padding: 10px 20px;
   font-size: 16px;
   color: white;
-  background-color: #ff9900;
+  background-color: #ffa726;
   border: none;
   border-radius: 5px;
   cursor: pointer;
 }
 
 .cargar-mas:hover {
-  background-color: #ff8c00;
+  background-color: #fb8c00;
 }
 
-/* Carrusel */
-.carousel {
-  position: relative;
-  width: 851px;
-  height: 315px;
-  margin: 20px auto;
-  overflow: hidden;
-  border-radius: 8px;
-}
 
-.carousel-item {
-  display: none;
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  opacity: 0;
-  transition: opacity 0.5s ease-in-out, transform 0.5s ease;
-}
 
-.carousel-item.active {
-  display: block;
-  opacity: 1;
-  transform: scale(1);
-}
 
-.banner-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
 
-.carousel-indicators {
-  position: absolute;
-  bottom: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 5px;
-}
 
-.carousel-indicators span {
-  width: 10px;
-  height: 10px;
-  background-color: rgba(255, 255, 255, 0.5);
-  border-radius: 50%;
-  cursor: pointer;
-}
-
-.carousel-indicators .active {
-  background-color: #fff;
-}
 
 </style>

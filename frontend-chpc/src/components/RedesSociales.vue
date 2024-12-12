@@ -76,11 +76,11 @@ export default {
 
 <style>
 body {
-  background-color: #f5f7fa;
+  background-color: #f5f5f5; /* Gris claro */
   margin: 0;
   padding: 0;
-  font-family: 'Roboto', Arial, sans-serif;
-  color: #333;
+  font-family: 'Roboto', sans-serif; /* Tipografía uniforme */
+  color: #333; /* Color de texto principal */
 }
 
 .social-container {
@@ -150,14 +150,15 @@ body {
   margin: 20px auto; /* Más espacio alrededor de los iconos */
 }
 
-.social-card h3 {
-  font-size: 22px; /* Texto más grande */
-  color: #34495e;
-  margin: 20px 0;
-  text-transform: capitalize;
-  font-weight: 600;
+.social-card {
+  background-color: #ffffff; /* Fondo blanco */
+  border: 1px solid #ddd; /* Tonalidad gris suave */
+  border-radius: 10px; /* Bordes consistentes */
+  padding: 20px;
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1); /* Sombra igualada */
+  text-align: center;
+  transition: transform 0.3s, box-shadow 0.3s;
 }
-
 
 a {
   text-decoration: none;

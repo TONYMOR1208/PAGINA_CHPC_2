@@ -3,7 +3,7 @@ from app import app, db
 from models import Marca  # Asegúrate de importar el modelo Marca
 
 # Ruta donde estarán almacenadas las imágenes (especificada)
-static_folder = r"C:\Users\Anthony Moreira\Desktop\PAGINA_CHPC_2\Backend_CHPC\static\logosmarcas"
+static_folder = r"C:\Users\Contabilidad\Desktop\PAGINA_CHPC_2\Backend_CHPC\static\logosmarcas"
 
 # Asegurarse de que la carpeta existe
 if not os.path.exists(static_folder):

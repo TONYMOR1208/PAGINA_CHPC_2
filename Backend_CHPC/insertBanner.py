@@ -3,7 +3,7 @@ from app import app, db
 from models import Banner
 
 # Ruta donde están almacenadas las imágenes
-static_folder = r'C:\Users\Anthony Moreira\Desktop\PAGINA_CHPC_2\Backend_CHPC\static'
+static_folder = r'C:\Users\Contabilidad\Desktop\PAGINA_CHPC_2\Backend_CHPC\static'
 
 # Filtrar solo archivos de imágenes
 imagenes = [img for img in os.listdir(static_folder) if img.lower().endswith(('.png', '.jpg', '.jpeg', '.gif'))]

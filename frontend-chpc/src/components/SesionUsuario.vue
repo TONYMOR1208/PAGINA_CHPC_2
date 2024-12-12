@@ -54,59 +54,82 @@
   </div>
 </template>
 
-  
-  <script>
-  import axios from 'axios';
-  import HeaderAnth from './HeaderAnth.vue';
-  
-  export default {
-    name: "SesionUsuario",
+<script>
+import axios from 'axios';
+import HeaderAnth from './HeaderAnth.vue';
+
+export default {
+  name: "SesionUsuario",
   components: {
     HeaderAnth,
   },
-    data() {
-      return {
-        nombre_usuario: '',
-        contraseña: '',
-        error: '',
-        passwordVisible: false
-      };
-    },
-    methods: {
-      async login() {
-        try {
-          const response = await axios.post('http://localhost:5000/tienda/auth/login', {
-            nombre_usuario: this.nombre_usuario,
-            contraseña: this.contraseña
-          });
-          localStorage.setItem('access_token', response.data.access_token); // Guarda el token en localStorage
-          this.$router.replace('/home'); // Usa replace en lugar de push
-        } catch (err) {
-          this.error = "Credenciales inválidas. Intenta de nuevo.";
-        }
-      },
-      clearError() {
-        this.error = '';
-      },
-      togglePasswordVisibility() {
-        this.passwordVisible = !this.passwordVisible;
-      },
-      goToRegister() {
-        this.$router.push('/registro');
+  data() {
+    return {
+      nombre_usuario: '',
+      contraseña: '',
+      errors: {}, // Objeto para almacenar errores específicos
+      error: '', // Error general
+      passwordVisible: false,
+    };
+  },
+  methods: {
+    async login() {
+      // Validar campos antes de enviar la solicitud
+      this.validateFields();
+      if (Object.keys(this.errors).length > 0) {
+        return; // Detener si hay errores de validación
       }
-    }
-  };
-  </script>
-  
-  <style scoped>
+      try {
+        const response = await axios.post('http://localhost:5000/tienda/auth/login', {
+          nombre_usuario: this.nombre_usuario,
+          contraseña: this.contraseña,
+        });
+        localStorage.setItem('access_token', response.data.access_token); // Guarda el token en localStorage
+        this.$router.replace('/home'); // Usa replace en lugar de push
+      } catch (err) {
+        this.error = err.response?.data?.mensaje || "Credenciales inválidas. Intenta de nuevo.";
+      }
+    },
+    validateFields() {
+      this.errors = {}; // Limpiar errores previos
 
-  
+      // Validación del nombre de usuario
+      if (!this.nombre_usuario.trim()) {
+        this.errors.nombre_usuario = "El nombre de usuario es obligatorio.";
+      } else if (this.nombre_usuario.trim().length < 3 || this.nombre_usuario.trim().length > 80) {
+        this.errors.nombre_usuario =
+          "El nombre de usuario debe tener entre 3 y 80 caracteres.";
+      }
+
+      // Validación de la contraseña
+      if (!this.contraseña.trim()) {
+        this.errors.contraseña = "La contraseña es obligatoria.";
+      } else if (!/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/.test(this.contraseña)) {
+        this.errors.contraseña =
+          "La contraseña debe tener al menos 6 caracteres, incluir una letra, un número y un carácter especial.";
+      }
+    },
+    clearError(field) {
+      // Elimina el error asociado a un campo específico
+      delete this.errors[field];
+    },
+    togglePasswordVisibility() {
+      this.passwordVisible = !this.passwordVisible;
+    },
+    goToRegister() {
+      this.$router.push('/registro');
+    },
+  },
+};
+</script>
+
+  <style scoped>
   /* Login Container */
   .login-container {
     max-width: 480px;
     margin: 50px auto;
     padding: 30px;
-    background-color: #ffffff;
+    background-color: #ffffff; /* Blanco */
     border-radius: 10px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     font-family: 'Roboto', sans-serif;
@@ -114,7 +137,7 @@
   
   .login-container h2 {
     text-align: center;
-    color: #333333;
+    color: #ffa726; /* Naranja */
     font-size: 24px;
     margin-bottom: 10px;
   }
@@ -125,7 +148,7 @@
   
   .input-group label {
     font-size: 14px;
-    color: #555555;
+    color: #555555; /* Gris oscuro */
     margin-bottom: 5px;
     display: block;
     font-weight: 500;
@@ -141,7 +164,7 @@
   }
   
   .input-group input:focus {
-    border-color: #007bff;
+    border-color: #ffa726; /* Naranja */
     outline: none;
   }
   
@@ -155,44 +178,45 @@
     right: 10px;
     transform: translateY(-50%);
     font-size: 18px;
-    color: #007bff;
+    color: #ffa726; /* Naranja */
     cursor: pointer;
     transition: color 0.3s;
   }
   
   .toggle-password:hover {
-    color: #0056b3;
+    color: #fb8c00; /* Naranja más oscuro */
   }
   
   .login-button {
     width: 100%;
     padding: 14px;
-    background-color: #007bff;
-    color: white;
+    background-color: #1c1c1c; /* Negro */
+    color: #ffffff; /* Blanco */
     border: none;
     border-radius: 6px;
     cursor: pointer;
     font-size: 16px;
     font-weight: bold;
     margin-top: 20px;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s, color 0.3s;
   }
   
   .login-button:hover {
-    background-color: #0056b3;
+    background-color: #ffa726; /* Naranja */
+    color: #1c1c1c; /* Negro */
   }
   
   .account-info {
     margin-top: 15px;
     text-align: center;
     font-size: 14px;
-    color: #666666;
+    color: #666666; /* Gris */
   }
   
   .create-account-link {
     background: none;
     border: none;
-    color: #007bff;
+    color: #ffa726; /* Naranja */
     cursor: pointer;
     font-size: 14px;
     text-decoration: underline;
@@ -200,11 +224,11 @@
   }
   
   .create-account-link:hover {
-    color: #0056b3;
+    color: #fb8c00; /* Naranja más oscuro */
   }
   
   .error {
-    color: #dc3545;
+    color: #e53935; /* Rojo para errores */
     font-size: 14px;
     text-align: left;
     margin-top: 5px;
