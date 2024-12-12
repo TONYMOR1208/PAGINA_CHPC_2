@@ -12,8 +12,12 @@
           type="text"
           v-model="localSearchQuery"
           placeholder="Tenemos lo que usted está buscando"
+          @input="buscarProductos"
+          aria-label="Campo de búsqueda"
         />
-        <button @click="buscarProductos">Buscar</button>
+        <button @click="buscarProductos" aria-label="Botón para buscar productos">
+          Buscar
+        </button>
       </div>
       <div class="user-actions">
         <template v-if="!isAuthenticated">
@@ -51,6 +55,7 @@ export default {
   data() {
     return {
       localSearchQuery: this.searchQuery,
+      delayTimer: null, // Temporizador para manejar debounce
     };
   },
   watch: {
@@ -60,7 +65,12 @@ export default {
   },
   methods: {
     buscarProductos() {
-      this.$emit("buscar", this.localSearchQuery);
+      clearTimeout(this.delayTimer); // Reinicia el temporizador
+      this.delayTimer = setTimeout(() => {
+        const query = this.localSearchQuery.trim();
+        // Emitir búsqueda al padre si la barra no está vacía o vaciar la búsqueda
+        this.$emit("buscar", query || "");
+      }, 300); // Espera 300ms para optimizar búsquedas
     },
     cerrarSesion() {
       this.$emit("cerrar-sesion");
@@ -68,6 +78,7 @@ export default {
   },
 };
 </script>
+
 
 <style scoped>
 /* Estilos relacionados con el header */
