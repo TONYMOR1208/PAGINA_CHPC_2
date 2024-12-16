@@ -159,7 +159,7 @@ export default {
 };
 </script>
 
-<style >
+<style>
 /* Estilos del fondo principal */
 body {
   background-color: #f5f5f5; /* Fondo gris claro */
@@ -167,92 +167,6 @@ body {
   padding: 0;
   font-family: 'Roboto', sans-serif; /* Tipografía uniforme */
   color: #333; /* Color de texto predeterminado */
-}
-
-/* Estilos del header */
-.header {
-  font-family: 'Roboto', sans-serif;
-}
-
-.top-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: #f5f5f5;
-  padding: 5px 20px;
-  font-size: 14px;
-  color: #333;
-}
-
-.language-selector span {
-  font-weight: bold;
-}
-
-.top-links a {
-  margin-left: 15px;
-  text-decoration: none;
-  color: #333;
-}
-
-.top-links a:hover {
-  text-decoration: underline;
-}
-
-/* Header principal */
-.main-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: #000;
-  padding: 10px 20px;
-}
-
-
-
-.user-actions a,
-.user-actions button {
-  margin-left: 15px;
-  text-decoration: none;
-  color: #edbd82; /* Naranja suave */
-  font-weight: bold;
-  background-color: transparent;
-  border: none;
-  cursor: pointer;
-}
-
-.user-actions a:hover,
-.user-actions button:hover {
-  text-decoration: underline;
-}
-
-.main-menu {
-  background-color: #000; /* Negro en lugar de azul */
-}
-
-.main-menu ul {
-  display: flex;
-  justify-content: space-between;
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.main-menu li {
-  flex: 1;
-  text-align: center;
-}
-
-.main-menu a {
-  display: block;
-  padding: 10px 0;
-  color: #fff;
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: bold;
-}
-
-.main-menu a:hover {
-  background-color: #fb8c00; /* Tonalidad naranja */
 }
 
 /* Contenido principal */
@@ -376,7 +290,6 @@ body {
   transform: translateY(-3px);
 }
 
-
 /* Botón de carga progresiva */
 .cargar-mas {
   display: block;
@@ -393,11 +306,4 @@ body {
 .cargar-mas:hover {
   background-color: #fb8c00;
 }
-
-
-
-
-
-
-
 </style>

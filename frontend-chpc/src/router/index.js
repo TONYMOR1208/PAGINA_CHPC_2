@@ -8,6 +8,7 @@ import CarouselBanner from '@/components/CarouselBanner.vue';
 
 import RedesSociales from '@/components/RedesSociales.vue';
 import ServicioTecnico from '@/components/ServicioTecnico.vue';
+import ProductosPorMarca from '@/components/ProductosPorMarca.vue';
 
 const routes = [
   { path: '/', redirect: '/home' },
@@ -65,6 +66,11 @@ const routes = [
     path: '/carousel-banner',
     component: CarouselBanner,
     name: 'CarouselBanner'  
+  },
+  {
+    path: "/productos/marca/:id",
+    name: "ProductosPorMarca",
+    component: ProductosPorMarca,
   }
 
 

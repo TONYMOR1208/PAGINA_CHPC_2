@@ -5,27 +5,30 @@
       @cerrar-sesion="cerrarSesion"
     />
 
-    <div class="marcas-container">
-      <h1 class="main-title">Explora nuestras Marcas</h1>
-      <p class="description">
-        Aquí encontrarás las mejores marcas para tus necesidades. ¡Haz clic y conoce más!
-      </p>
-      <div class="marca-grid">
-        <div 
-          v-for="marca in marcas" 
-          :key="marca.id" 
-          class="marca-card"
-          @click="filtrarPorMarca(marca.id)"
-        >
-          <img
-            :src="marca.imagen_url"
-            :alt="'Logo de la marca ' + marca.nombre_marca"
-            class="marca-logo"
-          />
-          <h3>{{ marca.nombre_marca }}</h3>
+    <!-- Transición para el contenedor de marcas -->
+    <transition name="fade">
+      <div class="marcas-container">
+        <h1 class="main-title">Explora nuestras Marcas</h1>
+        <p class="description">
+          Aquí encontrarás las mejores marcas para tus necesidades. ¡Haz clic y conoce más!
+        </p>
+        <div class="marca-grid">
+          <div 
+            v-for="marca in marcas" 
+            :key="marca.id" 
+            class="marca-card"
+            @click="filtrarPorMarca(marca.id)"
+          >
+            <img
+              :src="marca.imagen_url"
+              :alt="'Logo de la marca ' + marca.nombre_marca"
+              class="marca-logo"
+            />
+            <h3>{{ marca.nombre_marca }}</h3>
+          </div>
         </div>
       </div>
-    </div>
+    </transition>
 
     <FooterAnth />
   </div>
@@ -70,7 +73,7 @@ export default {
       this.$router.replace("/login");
     },
     filtrarPorMarca(marcaId) {
-      this.$router.push({ path: "/", query: { marca: marcaId } });
+      this.$router.push({ name: "ProductosPorMarca", params: { id: marcaId } });
     },
   },
 };
@@ -88,6 +91,9 @@ body {
   text-align: center;
   margin: 40px auto;
   max-width: 1200px;
+  opacity: 0; /* Oculto inicialmente */
+  transform: translateY(20px); /* Mover hacia abajo inicialmente */
+  animation: fadeIn 1s ease-out forwards; /* Animación */
 }
 
 .main-title {
@@ -151,4 +157,23 @@ body {
   text-transform: capitalize;
 }
 
+/* Transición de entrada/salida */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+/* Animación personalizada */
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 </style>

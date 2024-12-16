@@ -88,6 +88,45 @@ def obtener_productos():
         return jsonify({"error": str(e)}), 500
 
 
+# Endpoint dedicado para obtener productos por marca
+@bp.route('/marca/<int:marca_id>', methods=['GET'])
+def obtener_productos_por_marca(marca_id):
+    try:
+        productos = Producto.query.filter_by(id_marca=marca_id).all()
+
+        productos_data = []
+
+        for producto in productos:
+            # Obtener las imágenes asociadas al producto
+            media_productos = Media.query.filter_by(id_producto=producto.id).all()
+            media_data = [
+                {
+                    "id": media.id,
+                    "tipo_media": media.tipo_media,
+                    "url": media.url,
+                    "descripcion": media.descripcion,
+                    "orden": media.orden
+                }
+                for media in media_productos
+            ]
+
+            # Construir el diccionario del producto
+            producto_dict = {
+                "id": producto.id,
+                "nombre_producto": producto.nombre_producto,
+                "descripcion": producto.descripcion,
+                "precio": str(producto.precio),
+                "stock": producto.stock,
+                "media": media_data
+            }
+            productos_data.append(producto_dict)
+
+        return jsonify(productos_data), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+
 @bp.route('/<int:id>', methods=['GET'])
 def obtener_producto(id):
     try:

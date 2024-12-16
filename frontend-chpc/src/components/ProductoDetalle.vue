@@ -244,8 +244,65 @@ export default {
 
 
 <style scoped>
+/* ================= Animaciones ================= */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleUp {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes zoomIn {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 /* ================= Contenedor Principal ================= */
 .producto-contenedor {
+  animation: fadeIn 1s ease;
   display: flex;
   flex-direction: column;
   gap: 30px;
@@ -256,7 +313,6 @@ export default {
   border-radius: 15px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
-
 /* ================= Sección de Detalles ================= */
 .detalle-contenedor {
   display: flex;
@@ -297,14 +353,33 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  animation: fadeIn 1s ease;
 }
 
+/* Contenedor de miniaturas */
 .miniaturas {
   display: flex;
   gap: 10px;
   overflow-x: auto;
+  padding: 10px 0;
+  scrollbar-width: thin;
+  scrollbar-color: #ffa726 transparent;
 }
 
+.miniaturas::-webkit-scrollbar {
+  height: 8px;
+}
+
+.miniaturas::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.miniaturas::-webkit-scrollbar-thumb {
+  background-color: #ffa726;
+  border-radius: 8px;
+}
+
+/* Miniaturas */
 .imagen-miniatura {
   width: 100px;
   height: 100px;
@@ -312,32 +387,103 @@ export default {
   border: 2px solid transparent;
   border-radius: 8px;
   cursor: pointer;
-  transition: transform 0.3s ease, border-color 0.3s ease;
+  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  animation: fadeIn 0.6s ease;
+  position: relative;
+  z-index: 1;
 }
 
 .imagen-miniatura:hover {
   transform: scale(1.2);
-  border-color: #007bff;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  border-color: #ffa726;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+  z-index: 2;
 }
 
+/* Efecto visual al seleccionar una miniatura */
+.imagen-miniatura.active {
+  transform: scale(1.3);
+  border-color: #fb8c00;
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.4);
+}
+
+/* Contenedor de la imagen principal */
 .imagen-principal {
   position: relative;
   overflow: hidden;
   border-radius: 15px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+  background-color: #f0f0f0;
+  animation: zoomIn 1s ease;
 }
 
+/* Imagen principal */
 .imagen-principal .imagen-grande {
   width: 100%;
   max-height: 600px;
   object-fit: contain;
   border-radius: 15px;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: transform 0.5s ease, box-shadow 0.5s ease;
 }
 
 .imagen-principal .imagen-grande:hover {
   transform: scale(1.05);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Efectos adicionales para videos principales */
+.imagen-principal video {
+  width: 100%;
+  max-height: 600px;
+  object-fit: contain;
+  border-radius: 15px;
+  transition: transform 0.5s ease, box-shadow 0.5s ease;
+}
+
+.imagen-principal video:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Efectos de capa sobre miniaturas */
+.imagen-miniatura::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.2) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  border-radius: 8px;
+  z-index: 1;
+}
+
+.imagen-miniatura:hover::before {
+  opacity: 1;
+}
+
+/* Indicador de selección */
+.imagen-miniatura::after {
+  content: "✓";
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  color: #fff;
+  background: #ffa726;
+  width: 20px;
+  height: 20px;
+  font-size: 14px;
+  font-weight: bold;
+  text-align: center;
+  line-height: 20px;
+  border-radius: 50%;
+  display: none;
+}
+
+.imagen-miniatura.active::after {
+  display: block;
 }
 
 /* ================= Videos ================= */
