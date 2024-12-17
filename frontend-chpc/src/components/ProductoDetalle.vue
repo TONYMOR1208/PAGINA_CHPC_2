@@ -95,25 +95,33 @@
         {{ producto.stock > 0 ? "En stock" : "Agotado" }}
       </p>
 
-      <!-- Descripción en formato de lista -->
-      <div class="descripcion-producto">
-        <p><strong>Descripción:</strong></p>
-        <ul>
-          <li><strong>Nombre del Producto:</strong> {{ producto.nombre_producto || 'Sin nombre' }}</li>
-          <li v-if="producto.descripcion"><strong>Descripción del Producto:</strong> {{ producto.descripcion }}</li>
-          <li><strong>Precio:</strong> USD ${{ formatPrice(producto.precio) }}</li>
-          <li><strong>Stock:</strong> {{ producto.stock > 0 ? 'Disponible' : 'Agotado' }}</li>
-          <li v-if="producto.peso"><strong>Peso:</strong> {{ producto.peso }} kg</li>
-          <li v-if="producto.color"><strong>Color:</strong> {{ producto.color }}</li>
-          <li v-if="producto.volumen"><strong>Volumen:</strong> {{ producto.volumen }} ml</li>
+    <!-- Descripción en formato de lista -->
+<div class="descripcion-producto">
+  <p><strong>Descripción:</strong></p>
+  <ul>
+    <li><strong>Nombre del Producto:</strong> {{ producto.nombre_producto || 'Sin nombre' }}</li>
+    <li v-if="producto.descripcion">
+      <strong>Descripción del Producto:</strong> {{ producto.descripcion }}
+    </li>
+    <li><strong>Precio:</strong> USD ${{ formatPrice(producto.precio) }}</li>
+    <li><strong>Stock:</strong> {{ producto.stock }} unidades</li>
+    <li v-if="producto.peso"><strong>Peso:</strong> {{ producto.peso }} kg</li>
+    <li v-if="producto.color"><strong>Color:</strong> {{ producto.color }}</li>
+    <li v-if="producto.volumen"><strong>Volumen:</strong> {{ producto.volumen }} ml</li>
 
-          <li><strong>Marca:</strong> {{ producto.marca?.nombre_marca || 'Sin marca' }}</li>
-          <li v-if="producto.marca?.descripcion"><strong>Descripción de la Marca:</strong> {{ producto.marca.descripcion }}</li>
-          <li v-if="producto.marca?.sitio_web"><strong>Sitio Web de la Marca:</strong> <a :href="producto.marca.sitio_web" target="_blank">{{ producto.marca.sitio_web }}</a></li>
+    <li><strong>Marca:</strong> {{ producto.marca?.nombre_marca || 'Sin marca' }}</li>
+    <li v-if="producto.marca?.descripcion">
+      <strong>Descripción de la Marca:</strong> {{ producto.marca.descripcion }}
+    </li>
+    <li v-if="producto.marca?.sitio_web">
+      <strong>Sitio Web de la Marca:</strong>
+      <a :href="producto.marca.sitio_web" target="_blank">{{ producto.marca.sitio_web }}</a>
+    </li>
 
-          <li><strong>Categoría:</strong> {{ producto.categoria?.nombre_categoria || 'Sin categoría' }}</li>
-        </ul>
-      </div>
+    <li><strong>Categoría:</strong> {{ producto.categoria?.nombre_categoria || 'Sin categoría' }}</li>
+  </ul>
+</div>
+
 
       <div class="botones-accion">
   <a href="https://wa.me/593995924867" target="_blank" class="boton-compra">Comprar ahora</a>

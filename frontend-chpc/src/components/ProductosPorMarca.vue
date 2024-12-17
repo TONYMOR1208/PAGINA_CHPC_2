@@ -19,11 +19,18 @@
                 loading="lazy"
               />
             </div>
-            <h3>{{ producto.nombre_producto }}</h3>
-            <p>{{ producto.descripcion }}</p>
-            <p class="precio">Precio: ${{ producto.precio }}</p>
-            <button @click="verDetalle(producto.id)">Ver Detalles</button>
-          </div>
+  <h3>{{ producto.nombre_producto }}</h3>
+  <p>{{ producto.descripcion }}</p>
+  <p class="precio">Precio: ${{ producto.precio }}</p>
+  
+  <!-- Mostrar stock disponible -->
+  <p class="stock">
+    <strong>Stock disponible:</strong> {{ producto.stock }} unidades
+  </p>
+
+  <button @click="verDetalle(producto.id)">Ver Detalles</button>
+</div>
+
         </div>
       </div>
     </div>

@@ -21,30 +21,43 @@
       <h1>Bienvenidos a Nuestra Tienda </h1>
       <p>Explora nuestros productos y encuentra lo que necesitas.</p>
 
-      <!-- Lista de Productos -->
-      <div class="product-grid">
-        <div
-          v-for="producto in productosMostrados"
-          :key="producto.id"
-          class="product-card"
-        >
-          <img
-            :src="producto.imagen_url || 'ruta-imagen-default.png'"
-            alt="Imagen del Producto"
-          />
-          <h3>{{ producto.nombre_producto }}</h3>
-          <p>{{ producto.descripcion }}</p>
-          <p v-if="isAuthenticated">
-            <strong>Precio:</strong> ${{ producto.precio }}
-          </p>
-          <button v-if="isAuthenticated" @click="verDetalle(producto.id)">
-            Ver Detalles
-          </button>
-          <button v-else @click="redirigirLogin">
-            Inicia Sesión para Ver Precios
-          </button>
-        </div>
-      </div>
+     <!-- Lista de Productos -->
+<div class="product-grid">
+  <div
+    v-for="producto in productosMostrados"
+    :key="producto.id"
+    class="product-card"
+  >
+    <!-- Imagen del producto -->
+    <img
+      :src="producto.imagen_url || 'ruta-imagen-default.png'"
+      alt="Imagen del Producto"
+    />
+
+    <!-- Nombre y descripción del producto -->
+    <h3>{{ producto.nombre_producto }}</h3>
+    <p>{{ producto.descripcion }}</p>
+
+    <!-- Precio del producto (solo para usuarios autenticados) -->
+    <p v-if="isAuthenticated">
+      <strong>Precio:</strong> ${{ producto.precio }}
+    </p>
+
+    <!-- Mostrar cantidad en stock -->
+    <p>
+      <strong>Stock disponible:</strong> {{ producto.stock }} unidades
+    </p>
+
+    <!-- Botones de acción -->
+    <button v-if="isAuthenticated" @click="verDetalle(producto.id)">
+      Ver Detalles
+    </button>
+    <button v-else @click="redirigirLogin">
+      Inicia Sesión para Ver Precios
+    </button>
+  </div>
+</div>
+
 
       <!-- Botón para cargar más productos -->
       <button
