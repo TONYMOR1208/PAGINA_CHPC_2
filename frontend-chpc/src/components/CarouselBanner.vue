@@ -1,64 +1,73 @@
 <template>
-  <div v-if="banners && banners.length > 0" class="carousel">
-    <!-- Banners -->
-    <div
-      v-for="(banner, index) in banners"
-      :key="banner.id"
-      :class="['carousel-item', { active: index === activeBanner }]"
-    >
-      <img
-        :src="getFullImageUrl(banner.imagen_url)"
-        :alt="banner.titulo"
-        class="banner-image"
-      />
-    </div>
-    
-    <!-- Flechas de navegación -->
-    <button class="carousel-arrow left" @click="prevBanner">‹</button>
-    <button class="carousel-arrow right" @click="nextBanner">›</button>
-    
-    <!-- Indicadores -->
-    <div class="carousel-indicators">
-      <span
+  <div class="carousel-banner">
+    <div v-if="banners.length" class="carousel">
+      <div
         v-for="(banner, index) in banners"
-        :key="`indicator-${index}`"
-        :class="{ active: index === activeBanner }"
-        @click="setBanner(index)"
-      ></span>
+        :key="banner.id"
+        class="carousel-item"
+        :class="{ active: activeBanner === index }"
+      >
+        <img
+          :src="getFullImageUrl(banner.imagen_url)"
+          :alt="banner.titulo"
+          class="banner-image"
+        />
+      </div>
+
+      <!-- Controles del carrusel -->
+      <button class="carousel-arrow left" @click="prevBanner">&#10094;</button>
+      <button class="carousel-arrow right" @click="nextBanner">&#10095;</button>
+
+      <!-- Indicadores -->
+      <div class="carousel-indicators">
+        <span
+          v-for="(banner, index) in banners"
+          :key="index"
+          :class="{ active: activeBanner === index }"
+          @click="setBanner(index)"
+        ></span>
+      </div>
     </div>
-  </div>
-  <div v-else>
-    <p>Cargando banners...</p>
+
+    <div v-else class="no-banners">
+      <p>No hay banners disponibles.</p>
+    </div>
   </div>
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
   name: "CarouselBanner",
-  props: {
-    banners: {
-      type: Array,
-      required: true,
-    },
-  },
   data() {
     return {
+      banners: [],
       activeBanner: 0,
       intervalId: null,
     };
   },
-  mounted() {
+  async created() {
+    await this.fetchBanners();
     this.startCarousel();
   },
   beforeUnmount() {
     this.stopCarousel();
   },
   methods: {
+    async fetchBanners() {
+      try {
+        const response = await axios.get("http://localhost:5000/tienda/banners");
+        this.banners = response.data.data;
+      } catch (error) {
+        console.error("Error al obtener los banners:", error);
+      }
+    },
     startCarousel() {
       if (this.banners && this.banners.length > 0) {
         this.intervalId = setInterval(() => {
           this.nextBanner();
-        }, 6000);
+        }, 4000);
       }
     },
     stopCarousel() {
@@ -165,5 +174,12 @@ export default {
 
 .carousel-indicators .active {
   background-color: #fff;
+}
+
+.no-banners {
+  text-align: center;
+  color: #888;
+  font-size: 1.2rem;
+  margin-top: 2rem;
 }
 </style>
