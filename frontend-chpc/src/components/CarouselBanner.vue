@@ -11,6 +11,7 @@
           :src="getFullImageUrl(banner.imagen_url)"
           :alt="banner.titulo"
           class="banner-image"
+          @load="handleImageLoad"
         />
       </div>
 
@@ -34,7 +35,6 @@
     </div>
   </div>
 </template>
-
 <script>
 import axios from "axios";
 
@@ -67,7 +67,7 @@ export default {
       if (this.banners && this.banners.length > 0) {
         this.intervalId = setInterval(() => {
           this.nextBanner();
-        }, 4000);
+        }, 6000);
       }
     },
     stopCarousel() {
@@ -86,43 +86,65 @@ export default {
     setBanner(index) {
       this.activeBanner = index;
     },
+    handleImageLoad(event) {
+      event.target.classList.add("loaded"); // Añade la clase `loaded` al cargar la imagen
+    },
   },
 };
 </script>
 
-<style scoped>
+<style>
+
 .carousel {
   position: relative;
-  width: 851px;
-  height: 315px;
+  width: 1024px; /* Ancho aumentado */
+  height: 400px; /* Altura aumentada */
   margin: 20px auto;
   overflow: hidden;
-  border-radius: 8px;
-  transition: transform 0.5s ease-in-out; /* Transición para el contenedor */
+  border-radius: 12px; /* Esquinas más redondeadas */
 }
 
 .carousel:hover {
-  transform: scale(1.05); /* Aumenta el tamaño del contenedor principal */
+  transform: scale(1.05); /* Efecto de agrandamiento al pasar el mouse */
+  transition: transform 0.5s ease-in-out;
+}
+
+.carousel {
+  position: relative;
+  width: 851px; /* Ancho de la imagen */
+  height: 315px; /* Altura de la imagen */
+  margin: 20px auto;
+  overflow: hidden;
+  border-radius: 12px; /* Bordes redondeados */
 }
 
 .carousel-item {
-  position: relative; /* Cambiado a relative para permitir escalado completo */
-  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
   opacity: 0;
-  transition: opacity 0.5s ease-in-out;
+  transform: scale(0.9);
+  transition: transform 1s ease-in-out, opacity 1s ease-in-out;
 }
 
 .carousel-item.active {
-  display: block;
   opacity: 1;
+  z-index: 2;
+  transform: scale(1);
 }
 
 .banner-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.8s ease-in-out, transform 0.8s ease-in-out;
+}
+
+.banner-image.loaded {
+  opacity: 1;
 }
 
 .carousel-arrow {
@@ -161,12 +183,12 @@ export default {
   left: 50%;
   transform: translateX(-50%);
   display: flex;
-  gap: 5px;
+  gap: 8px;
 }
 
 .carousel-indicators span {
-  width: 10px;
-  height: 10px;
+  width: 12px;
+  height: 12px;
   background-color: rgba(255, 255, 255, 0.5);
   border-radius: 50%;
   cursor: pointer;
@@ -182,4 +204,6 @@ export default {
   font-size: 1.2rem;
   margin-top: 2rem;
 }
+
+
 </style>
