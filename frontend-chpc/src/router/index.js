@@ -1,14 +1,15 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import SesionUsuario from '../components/SesionUsuario.vue';
-import RegistroUsuario from '../components/RegistroUsuario.vue';
-import Home from '../components/Home.vue'; // Cambié '@/' a '../'
-import ProductoDetalle from '../components/ProductoDetalle.vue';
-import ListaMarcas from '@/components/ListaMarcas.vue';
-import CarouselBanner from '@/components/CarouselBanner.vue';
+import SesionUsuario from '../components/SesionUsuario/SesionUsuario.vue';
+import RegistroUsuario from '../components/RegistroUsuario/RegistroUsuario.vue';
+import Home from '../components/HomePage/HomePage.vue';
+import ProductoDetalle from '../components/ProductoDetalle/ProductoDetalle.vue';
+import ListaMarcas from '../components/ListaMarcas/ListaMarcas.vue';
+import CarouselBanner from '../components/CarouselBanner/CarouselBanner.vue';
 
-import RedesSociales from '@/components/RedesSociales.vue';
-import ServicioTecnico from '@/components/ServicioTecnico.vue';
-import ProductosPorMarca from '@/components/ProductosPorMarca.vue';
+import RedesSociales from '../components/RedesSociales/RedesSociales.vue';
+import ServicioTecnico from '../components/ServicioTecnico/ServicioTecnico.vue';
+import ProductosPorMarca from '../components/ProductosPorMarca/ProductosPorMarca.vue';
+
 
 const routes = [
   { path: '/', redirect: '/home' },
